@@ -1,0 +1,67 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: cvflow
+      POSTGRES_PASSWORD: cvflow
+      POSTGRES_DB: cvflow
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports: ["5672:5672", "15672:15672"]
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports: ["8081:8080"]   # 8081 externo para no pisar tu gateway
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+
+  core-service:
+    build:
+      context: ./core-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cvflow
+      SPRING_DATASOURCE_USERNAME: cvflow
+      SPRING_DATASOURCE_PASSWORD: cvflow
+    ports:
+      - "8082:8082"
+
+  gateway:
+    build:
+      context: ./gateway
+    depends_on:
+      - ai-service
+      - core-service
+    environment:
+      SPRING_SECURITY_USER_NAME: Kevin
+      SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
+    ports:
+      - "8080:8080"
+
+  ai-service:
+    build:
+      context: ./ai-service
+    depends_on:
+      - ollama
+    environment:
+      SPRING_SECURITY_USER_NAME: Kevin
+      SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
+      SPRING_AI_OLLAMA_URL: http://ollama:11434
+      SPRING_AI_OLLAMA_MODEL: mistral
+    ports:
+      - "8084:8083"
+
+volumes:
+  pgdata:
