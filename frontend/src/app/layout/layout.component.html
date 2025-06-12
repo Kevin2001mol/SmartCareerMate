@@ -1,0 +1,28 @@
+<mat-sidenav-container class="sidenav-container">
+
+  <mat-sidenav #drawer mode="side" class="sidenav" [opened]="true">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/home" (click)="drawer.toggle()">Home</a>
+      <a mat-list-item routerLink="/chat" (click)="drawer.toggle()">Chat AI</a>
+      <!-- añade más enlaces según necesites -->
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <span class="title">Smart Career Mate</span>
+      <span class="spacer"></span>
+
+      <!-- futuro botón de login / logout -->
+    </mat-toolbar>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
