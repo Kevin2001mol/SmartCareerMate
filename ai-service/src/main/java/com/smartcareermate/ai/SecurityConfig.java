@@ -15,6 +15,7 @@ public class SecurityConfig {
         return http
             .csrf(csrf -> csrf.disable())          // quita CSRF para llamadas REST
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/ai/**").permitAll() // Permite el acceso libre a /ai/**
                 .anyRequest().permitAll()          // TODO: proteger con Keycloak más tarde
             )
             .httpBasic(Customizer.withDefaults())  // deja Basic por si llamas directo
