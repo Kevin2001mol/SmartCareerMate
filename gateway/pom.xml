@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Spring Boot parent -->
+  <!-- Parent Spring Boot 3.2.x -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.0</version>
+    <version>3.2.5</version>
     <relativePath/>
   </parent>
 
   <groupId>com.example</groupId>
-  <artifactId>demo</artifactId>
+  <artifactId>gateway</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>gateway</name>
-  <description>Gateway - Spring Cloud Gateway + Spring Boot 3.3</description>
+  <description>Spring Cloud Gateway sobre Boot 3.2.x</description>
 
   <properties>
-	<java.version>17</java.version>
-	<spring-cloud.version>2023.0.5</spring-cloud.version>
+    <java.version>17</java.version>
+    <spring-cloud.version>2023.0.5</spring-cloud.version>
   </properties>
 
-
-  <!-- Import the Spring Cloud BOM -->
+  <!-- BOM Spring Cloud Ockham -->
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -40,36 +40,38 @@
 
   <dependencies>
 
-    <!-- WebFlux (necesario para Gateway) -->
+    <!-- Reactor WebFlux -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
 
-    <!-- ⭐ Spring Cloud Gateway (reactivo) -->
+    <!-- ★ Spring Cloud Gateway for Ockham (overriding to 4.1.5) -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-gateway</artifactId>
+      <version>4.1.5</version>
     </dependency>
 
-    <!-- (opcional) Resource-server para proteger el gateway con JWT -->
+    <!-- (Opt) JWT Resource Server -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
 
-    <!-- Actuator para health/info, métricas, etc. -->
+    <!-- Actuator -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
-    <!-- Test -->
+    <!-- Testing -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>

@@ -44,9 +44,6 @@ services:
     depends_on:
       - ai-service
       - core-service
-    environment:
-      SPRING_SECURITY_USER_NAME: Kevin
-      SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
     ports:
       - "8080:8080"
 
@@ -56,8 +53,8 @@ services:
     depends_on:
       - ollama
     environment:
-      SPRING_SECURITY_USER_NAME: Kevin
-      SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
+      # SPRING_SECURITY_USER_NAME: Kevin
+      # SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
       SPRING_AI_OLLAMA_URL: http://ollama:11434
       SPRING_AI_OLLAMA_MODEL: mistral
     ports:
