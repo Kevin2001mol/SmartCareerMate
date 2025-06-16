@@ -1,24 +1,14 @@
-import { Routes } from '@angular/router';
-import { LayoutComponent } from './layout/layout.component';
-import { HomeComponent } from './pages/home/home.component';
+// src/app/app.routes.ts
+import { Routes, RouterModule } from '@angular/router';
+import { HomeComponent }    from './pages/home/home.component';
+import { LoginComponent }   from './pages/login/login.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
-export const routes: Routes = [
-  {
-    path: '',
-    component: LayoutComponent,
-    children: [
-      // Home (cargado de forma directa)
-      { path: 'home', component: HomeComponent },
-
-      // Cuando crees ChatComponent, descomenta esto:
-       {
-         path: 'chat',
-         loadComponent: () =>
-           import('./pages/chat/chat.component').then(m => m.ChatComponent)
-       },
-
-      // Redirección raíz → /home
-      { path: '', redirectTo: 'home', pathMatch: 'full' }
-    ]
-  }
+const routes: Routes = [
+  { path: 'home',    component: HomeComponent },
+  { path: 'login',   component: LoginComponent },
+  { path: 'profile', component: ProfileComponent },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
 ];
+
+export const AppRoutingModule = RouterModule.forRoot(routes);

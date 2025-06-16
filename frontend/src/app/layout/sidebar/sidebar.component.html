@@ -1,0 +1,21 @@
+<nav
+  class="bg-gray-100 h-full p-4 w-64 transition-transform"
+  [class.-translate-x-full]="collapsed"
+>
+  <ul class="space-y-2">
+    <li>
+      <a
+        routerLink="/home"
+        class="block px-2 py-1 rounded hover:bg-gray-200 transition"
+      >
+        Home
+      </a>
+    </li>
+    <!-- Si en el futuro quieres ruta independiente de Chat -->
+    <!--
+    <li>
+      <a routerLink="/chat" ...>Chat AI</a>
+    </li>
+    -->
+  </ul>
+</nav>
