@@ -1,6 +1,5 @@
+// src/app/layout/header/header.component.ts
 import { Component, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs';
-import { AuthService } from '../../core/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -9,13 +8,4 @@ import { AuthService } from '../../core/auth.service';
 })
 export class HeaderComponent {
   @Output() toggleSidebar = new EventEmitter<void>();
-  isLoggedIn$: Observable<boolean>;
-
-  constructor(private auth: AuthService) {
-    this.isLoggedIn$ = this.auth.isLoggedIn();
-  }
-
-  logout() {
-    this.auth.logout();
-  }
 }

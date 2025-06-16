@@ -1,28 +1,16 @@
+<!-- src/app/layout/header/header.component.html -->
 <mat-toolbar class="bg-blue-600 text-white px-4 flex items-center">
   <button mat-icon-button (click)="toggleSidebar.emit()" class="mr-4">
     <mat-icon>menu</mat-icon>
   </button>
-
   <span class="text-xl font-semibold">Smart Career Mate</span>
   <span class="flex-1"></span>
-
-  <!-- Botones Login / Perfil -->
-  <button
-    *ngIf="!(isLoggedIn$ | async)"
-    mat-button
-    routerLink="/login"
-    class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition"
-  >
+  <button mat-button routerLink="/login"
+          class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100">
     Login
   </button>
-
-  <button
-    *ngIf="isLoggedIn$ | async"
-    mat-button
-    routerLink="/profile"
-    (click)="logout()"
-    class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition"
-  >
+  <button mat-button routerLink="/profile"
+          class="ml-2 bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100">
     Mi Perfil
   </button>
 </mat-toolbar>
