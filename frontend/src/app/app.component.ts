@@ -1,14 +1,17 @@
-// src/app/app.component.ts
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { LayoutModule } from './layout/layout.module';
+import { Component }        from '@angular/core';
+import { HeaderComponent }  from './layout/header/header.component';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { RouterModule }     from '@angular/router';
+import { NgIf }             from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    LayoutModule,    // para <app-header> y <app-sidebar>
-    RouterModule     // para <router-outlet> y routerLink
+    NgIf,               // si usas algún *ngIf aquí
+    HeaderComponent,
+    SidebarComponent,
+    RouterModule        // para <router-outlet>
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']

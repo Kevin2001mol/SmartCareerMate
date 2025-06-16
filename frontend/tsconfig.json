@@ -1,4 +1,4 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
+/* tsconfig.json */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -10,13 +10,18 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    // <<<<<<<<<<<<<<<<<< Cambiado aquí >>>>>>>>>>>>>>>>>>>
+    "moduleResolution": "bundler",
+    "module": "ES2022",
+    // <<<<<<<<<<<<<<<<<< Cambiado aquí >>>>>>>>>>>>>>>>>>>    
+
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022",
     "useDefineForClassFields": false,
     "lib": [
       "ES2022",

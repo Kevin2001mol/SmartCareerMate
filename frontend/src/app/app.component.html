@@ -1,7 +1,8 @@
+<!-- src/app/app.component.html -->
 <app-header (toggleSidebar)="sidebarCollapsed = !sidebarCollapsed"></app-header>
 <div class="flex h-screen">
   <app-sidebar [collapsed]="sidebarCollapsed"></app-sidebar>
-  <main class="flex-1 overflow-auto">
+  <main class="flex-1 overflow-auto p-4">
     <router-outlet></router-outlet>
   </main>
 </div>
