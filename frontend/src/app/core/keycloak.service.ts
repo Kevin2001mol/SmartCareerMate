@@ -1,52 +1,42 @@
 // src/app/core/keycloak.service.ts
 import { Injectable } from '@angular/core';
 import Keycloak, { KeycloakInstance } from 'keycloak-js';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class KeycloakService {
   private kc!: KeycloakInstance;
+  private readonly _loggedIn = new BehaviorSubject<boolean>(false);
+  readonly  loggedIn$        = this._loggedIn.asObservable();
 
   init(): Promise<boolean> {
     this.kc = new Keycloak({
-      url: 'http://localhost:8180',
-      realm: 'SmartCareerMate',
-      clientId: 'smart-career-frontend',
+      url      : 'http://localhost:8180',
+      realm    : 'SmartCareerMate',
+      clientId : 'smart-career-frontend',
     });
-    return this.kc.init({
-      onLoad: 'check-sso',
-      checkLoginIframe: false,
-      // Tras cargar sesión (o SSO), volvemos al /home
-      redirectUri: `${window.location.origin}/home`,
-    });
+
+    return this.kc
+      .init({
+        onLoad              : 'check-sso',
+        checkLoginIframe    : true,
+        silentCheckSsoRedirectUri:
+          `${window.location.origin}/assets/silent-check-sso.html`,
+        redirectUri         : `${window.location.origin}/home`,
+        pkceMethod          : 'S256'
+      })
+      .then(() => {
+        this._loggedIn.next(!!this.kc.token);
+        this.kc.onAuthSuccess = () => this._loggedIn.next(true);
+        this.kc.onAuthLogout  = () => this._loggedIn.next(false);
+        this.kc.onTokenExpired= () => this.kc.updateToken(20);
+        return true;
+      });
   }
 
-  login(): void {
-    this.kc.login({
-      redirectUri: `${window.location.origin}/home`
-    });
-  }
+  login()   { this.kc.login   ({ redirectUri: `${window.location.origin}/home` }); }
+  logout()  { this.kc.logout  ({ redirectUri: `${window.location.origin}/home` }); }
 
-  register(): void {
-    this.kc.register({
-      redirectUri: `${window.location.origin}/home`
-    });
-  }
-
-  logout(): void {
-    this.kc.logout({
-      redirectUri: `${window.location.origin}/home`
-    });
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.kc.token;
-  }
-
-  getToken(): string {
-    return this.kc.token!;
-  }
-
-  getUsername(): string {
-    return (this.kc.tokenParsed as Record<string, any>)?.['preferred_username'];
-  }
+  getToken()    { return this.kc.token ?? ''; }
+  getUsername() { return (this.kc.tokenParsed as any)?.preferred_username ?? ''; }
 }
