@@ -1,30 +1,43 @@
 // src/main.ts
-import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter }        from '@angular/router';
+import { bootstrapApplication }           from '@angular/platform-browser';
+import { APP_INITIALIZER }                from '@angular/core';
+import { provideRouter }                  from '@angular/router';
 import { provideHttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { provideAnimations }    from '@angular/platform-browser/animations';
+import { provideAnimations }              from '@angular/platform-browser/animations';
 
-import { AppComponent }   from './app/app.component';
-import { routes }         from './app/app.routes';
-import { AuthInterceptor } from './app/core/auth.interceptor';
+import { AppComponent }                   from './app/app.component';
+import { routes }                         from './app/app.routes';
+import { KeycloakService }                from './app/core/keycloak.service';
+import { AuthInterceptor }                from './app/core/auth.interceptor';
+
+export function initializeKeycloak(kc: KeycloakService) {
+  // Devolvemos siempre una Promise que resuelve a true,
+  // capturando el 401 de check-sso para no bloquear el bootstrap.
+  return () => kc.init()
+    .then(() => true)
+    .catch(err => {
+      console.warn('Keycloak SSO check falló, seguimos sin sesión:', err);
+      return true;
+    });
+}
 
 bootstrapApplication(AppComponent, {
   providers: [
-    // 1) Routing
     provideRouter(routes),
-
-    // 2) HttpClient
     provideHttpClient(),
-
-    // 3) Nuestro interceptor
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
     },
+    provideAnimations(),
 
-    // 4) Animaciones para Angular Material
-    provideAnimations()
+    KeycloakService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeKeycloak,
+      deps: [KeycloakService],
+      multi: true
+    }
   ]
-})
-.catch(err => console.error(err));
+}).catch(err => console.error('Bootstrap error:', err));
