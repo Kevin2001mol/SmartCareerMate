@@ -1,0 +1,4 @@
+# cv-parser/.dockerignore
+.mvn/
+**/*.iml
+**/*.class

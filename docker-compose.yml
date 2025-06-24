@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+  # ─────────────────────── Bases y mensajería ──────────────────────
   postgres:
     image: postgres:16
     environment:
@@ -14,6 +15,7 @@ services:
     image: rabbitmq:3-management
     ports: ["5672:5672", "15672:15672"]
 
+  # ─────────────────────────── Seguridad ───────────────────────────
   keycloak:
     image: quay.io/keycloak/keycloak:23.0
     command: start-dev
@@ -21,8 +23,7 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KEYCLOAK_ADMIN_EMAIL: admin@dummy.local
-    ports:
-      - "8180:8080"
+    ports: ["8180:8080"]
     volumes:
       - keycloak_data:/opt/keycloak/data
 
@@ -32,6 +33,7 @@ services:
       - "1025:1025"
       - "8025:8025"
 
+  # ─────────────────────────── IA / backend ─────────────────────────
   ollama:
     image: ollama/ollama:latest
     ports: ["11434:11434"]
@@ -45,18 +47,33 @@ services:
       SPRING_DATASOURCE_PASSWORD: cvflow
     ports: ["8082:8082"]
 
-  gateway:
-    build: { context: ./gateway }
-    depends_on: [ai-service, core-service]
-    ports: ["8080:8080"]
-
   ai-service:
     build: { context: ./ai-service }
-    depends_on: [ollama]
+    depends_on:
+      - ollama
     environment:
       SPRING_AI_OLLAMA_URL: http://ollama:11434
       SPRING_AI_OLLAMA_MODEL: mistral
     ports: ["8084:8083"]
+
+  # ────────────────────────── CV-parser ────────────────────────────
+  cv-parser:
+    build: { context: ./cv-parser }
+    ports: ["8085:8085"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ─────────────────────────── Gateway ─────────────────────────────
+  gateway:
+    build: { context: ./gateway }
+    depends_on:
+      ai-service:   { condition: service_started }
+      core-service: { condition: service_started }
+      cv-parser:    { condition: service_healthy }
+    ports: ["8080:8080"]
 
 volumes:
   pgdata:
