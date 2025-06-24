@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   postgres:
     image: postgres:16
@@ -19,49 +20,44 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-    ports: ["8081:8080"]   # 8081 externo para no pisar tu gateway
+      KEYCLOAK_ADMIN_EMAIL: admin@dummy.local
+    ports:
+      - "8180:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
   ollama:
     image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
+    ports: ["11434:11434"]
 
   core-service:
-    build:
-      context: ./core-service
-    depends_on:
-      - postgres
+    build: { context: ./core-service }
+    depends_on: [postgres]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cvflow
       SPRING_DATASOURCE_USERNAME: cvflow
       SPRING_DATASOURCE_PASSWORD: cvflow
-    ports:
-      - "8082:8082"
+    ports: ["8082:8082"]
 
   gateway:
-    build:
-      context: ./gateway
-    depends_on:
-      - ai-service
-      - core-service
-    environment:
-      SPRING_SECURITY_USER_NAME: Kevin
-      SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
-    ports:
-      - "8080:8080"
+    build: { context: ./gateway }
+    depends_on: [ai-service, core-service]
+    ports: ["8080:8080"]
 
   ai-service:
-    build:
-      context: ./ai-service
-    depends_on:
-      - ollama
+    build: { context: ./ai-service }
+    depends_on: [ollama]
     environment:
-      SPRING_SECURITY_USER_NAME: Kevin
-      SPRING_SECURITY_USER_PASSWORD: Pelotilla55.
       SPRING_AI_OLLAMA_URL: http://ollama:11434
       SPRING_AI_OLLAMA_MODEL: mistral
-    ports:
-      - "8084:8083"
+    ports: ["8084:8083"]
 
 volumes:
   pgdata:
+  keycloak_data:

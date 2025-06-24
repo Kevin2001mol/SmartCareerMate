@@ -1,0 +1,6 @@
+
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";/* Asegurar que el contenedor de sidenav ocupa toda la altura */
+html, body, mat-sidenav-container {
+  height: 100%;
+  margin: 0;
+}
