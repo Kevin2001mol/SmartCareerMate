@@ -2,13 +2,15 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor, NgClass } from '@angular/common';
-
+import { CvService } from '../../core/cv.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { firstValueFrom } from 'rxjs';
+
 interface ChatMsg {
   from: 'user' | 'bot';
   text: string;
@@ -206,6 +208,7 @@ interface ChatMsg {
 export class HomeComponent {
   /* -------------------------- estado demo ----------------------------- */
   cvName = '';
+  parsedCv = '';
   offerText = '';
   lang = 'es';
   tone = 'profesional';
@@ -217,9 +220,23 @@ export class HomeComponent {
   chatInput = '';
 
   /* -------------------- handlers “mock” ------------------------------- */
-  onCv(e: Event) {
-    const f = (e.target as HTMLInputElement).files?.[0];
-    this.cvName = f?.name ?? '';
+  constructor(private cvService: CvService) {}
+  /** 1️⃣ Subir y parsear CV */
+  async onCv(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.cvName = file.name;
+
+    try {
+      // ← convierte el observable a Promise<string>
+      const text = await firstValueFrom(this.cvService.upload(file));
+      this.parsedCv = text; // aquí ya es string
+    } catch (err) {
+      console.error('Fallo al parsear CV', err);
+    }
   }
 
   generateCv() {
