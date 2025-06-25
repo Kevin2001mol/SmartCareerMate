@@ -1,21 +1,29 @@
-// core-service/src/main/java/com/smartcareermate/core/cv/api/CvCoreController.java
 package com.smartcareermate.core.cv.api;
 
-import com.smartcareermate.core.cv.service.CvStoreService;
+import com.smartcareermate.core.cv.domain.ParsedCv;
+import com.smartcareermate.core.cv.repository.ParsedCvRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/core/cv")
+@RequestMapping("/api/cv")          // <- route estable para core-service
 @RequiredArgsConstructor
 public class CvCoreController {
 
-  private final CvStoreService service;
+    private final ParsedCvRepository repo;
 
-  @PostMapping
-  public void save(@RequestBody SaveCvDTO dto) {
-    service.save(dto.userId(), dto.fileName(), dto.rawText());
-  }
+    // GET /api/cv/42
+    @GetMapping("/{id}")
+    public ParsedCv findById(@PathVariable Long id){
+        return repo.findById(id)
+                   .orElseThrow(() -> new RuntimeException("CV not found"));
+    }
 
-  record SaveCvDTO(Long userId, String fileName, String rawText) {}
+    // GET /api/cv?user=7
+    @GetMapping
+    public List<ParsedCv> listByUser(@RequestParam("user") Long userId){
+        return repo.findByUserIdOrderByCreatedAtDesc(userId);
+    }
 }
