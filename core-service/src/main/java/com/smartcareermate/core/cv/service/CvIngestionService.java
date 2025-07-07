@@ -1,8 +1,9 @@
 package com.smartcareermate.core.cv.service;
 
-import com.smartcareermate.core.cv.messaging.ParsedCvMessage;
 import com.smartcareermate.core.cv.domain.ParsedCv;
 import com.smartcareermate.core.cv.repository.ParsedCvRepository;
+import com.smartcareermate.messaging.ParsedCvMessage;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;

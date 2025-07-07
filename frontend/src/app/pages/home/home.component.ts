@@ -1,7 +1,7 @@
 // src/app/pages/home/home.component.ts
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgIf, NgFor, NgClass, DatePipe } from '@angular/common'; // ← Añadir DatePipe aquí
 import { CvService } from '../../core/cv.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,6 +23,7 @@ interface ChatMsg {
     NgIf,
     NgFor,
     NgClass,
+    DatePipe,  // ← Añadir DatePipe aquí también
     FormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -50,6 +51,46 @@ interface ChatMsg {
         <p *ngIf="cvName" class="mt-2 text-sm text-emerald-600">
           <mat-icon class="text-base">check_circle</mat-icon> {{ cvName }}
         </p>
+      </mat-card>
+
+      <!-- Sección de debugging -->
+      <mat-card appearance="outlined" class="p-4">
+        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+          <mat-icon>bug_report</mat-icon> Estado del sistema
+        </h2>
+        
+        <div class="space-y-2">
+          <button mat-raised-button (click)="testConnection()" color="accent">
+            <mat-icon>wifi</mat-icon> Test conexión backend
+          </button>
+          
+          <button mat-raised-button (click)="loadCvList()" color="primary">
+            <mat-icon>refresh</mat-icon> Cargar lista de CVs
+          </button>
+          
+          <p *ngIf="uploadStatus" [class]="uploadStatus.includes('✅') ? 'text-green-600' : 'text-red-600'">
+            Estado: {{ uploadStatus }}
+          </p>
+          
+          <div *ngIf="isLoading" class="flex items-center gap-2">
+            <mat-icon class="animate-spin">refresh</mat-icon>
+            <span>Procesando...</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <!-- Lista de CVs almacenados -->
+      <mat-card appearance="outlined" class="p-4" *ngIf="cvList.length > 0">
+        <h3 class="font-semibold mb-2 flex items-center gap-2">
+          <mat-icon>list</mat-icon> CVs almacenados ({{ cvList.length }})
+        </h3>
+        <div class="space-y-2">
+          <div *ngFor="let cv of cvList" class="border rounded p-2">
+            <strong>{{ cv.originalName }}</strong> 
+            <small class="text-gray-500">(ID: {{ cv.id }}, subido: {{ cv.createdAt | date:'short' }})</small>
+            <p class="text-sm mt-1">{{ cv.rawText.substring(0, 100) }}...</p>
+          </div>
+        </div>
       </mat-card>
 
       <!-- 2. Oferta + Ajustes ---------------------------------------------- -->
@@ -214,14 +255,20 @@ export class HomeComponent {
   tone = 'profesional';
   generatedCv = ''; // URL o blob
   generatedLetter = ''; // string
+  
   /* chat */
   level = 'principiante';
   chat: ChatMsg[] = [];
   chatInput = '';
 
-  /* -------------------- handlers “mock” ------------------------------- */
+  /* debugging */
+  uploadStatus = '';
+  cvList: any[] = [];
+  isLoading = false;
+
   constructor(private cvService: CvService) {}
-  /** 1️⃣ Subir y parsear CV */
+
+  /** 1️⃣ Subir y parsear CV - MEJORADO */
   async onCv(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) {
@@ -229,13 +276,50 @@ export class HomeComponent {
     }
 
     this.cvName = file.name;
+    this.isLoading = true;
+    this.uploadStatus = 'Subiendo archivo...';
 
     try {
-      // ← convierte el observable a Promise<string>
-      const text = await firstValueFrom(this.cvService.upload(file));
-      this.parsedCv = text; // aquí ya es string
+      // Pasar userId (hardcodeado por ahora)
+      const text = await firstValueFrom(this.cvService.upload(file, 1));
+      this.parsedCv = text;
+      this.uploadStatus = '✅ CV parseado exitosamente';
+      
+      // Esperar un poco y luego cargar la lista de CVs
+      setTimeout(() => this.loadCvList(), 2000);
+      
     } catch (err) {
-      console.error('Fallo al parsear CV', err);
+      console.error('Error al parsear CV:', err);
+      this.uploadStatus = '❌ Error al procesar el CV';
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /** Cargar lista de CVs del usuario */
+  async loadCvList() {
+    try {
+      this.cvList = await firstValueFrom(this.cvService.getCvsByUser(1));
+      console.log('CVs encontrados:', this.cvList);
+    } catch (err) {
+      console.error('Error al cargar CVs:', err);
+    }
+  }
+
+  /** Método para testear la conexión */
+  async testConnection() {
+    try {
+      const response = await fetch('/api/cv/1');
+      if (response.ok) {
+        console.log('✅ Conexión al backend OK');
+        this.uploadStatus = '✅ Backend conectado';
+      } else {
+        console.log('❌ Backend responde con error:', response.status);
+        this.uploadStatus = `❌ Backend error: ${response.status}`;
+      }
+    } catch (err) {
+      console.log('❌ No se puede conectar al backend:', err);
+      this.uploadStatus = '❌ Backend no disponible';
     }
   }
 

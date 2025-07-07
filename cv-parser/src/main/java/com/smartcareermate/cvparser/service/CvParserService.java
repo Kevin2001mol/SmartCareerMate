@@ -21,7 +21,7 @@ public class CvParserService {
     /**
      * Extrae texto del PDF y lo envía a RabbitMQ.
      */
-    public void parseAndSend(Long userId, String filename, InputStream is) throws Exception {
+    public String parseAndSend(Long userId, String filename, InputStream is) throws Exception {
         String text = tika.parseToString(is);
 
         ParsedCvMessage msg = ParsedCvMessage.builder()
@@ -31,5 +31,7 @@ public class CvParserService {
                 .build();
 
         rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_KEY, msg);
+
+        return text; // ← Devolver el texto para el frontend
     }
 }

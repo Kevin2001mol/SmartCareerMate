@@ -14,15 +14,14 @@ public class CvParserController {
     private final CvParserService service;
 
     /**
-     * POST /api/cv/parse?userId=7  con un PDF en el body.
+     * POST /api/cv/parse?userId=7 con un PDF en el body.
      */
     @PostMapping(path = "/parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void parse(@RequestParam Long userId,
-                      @RequestPart MultipartFile file) throws Exception {
+    public String parse(@RequestParam Long userId,
+            @RequestPart MultipartFile file) throws Exception {
 
-        service.parseAndSend(userId,
-                             file.getOriginalFilename(),
-                             file.getInputStream());
-        // Devuelve 200 OK vacío o 202 Accepted
+        return service.parseAndSend(userId,
+                file.getOriginalFilename(),
+                file.getInputStream());
     }
 }
