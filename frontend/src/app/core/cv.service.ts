@@ -4,32 +4,35 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CvService {
-  private readonly baseUrl = '/api/cv';
+  // 1) Rutas que terminan en el core-service
+  private readonly coreBase = '/api/core/cv';
+
+  // 2) Ruta que va al parser
+  private readonly parserUrl = '/api/cv/parse';
 
   constructor(private http: HttpClient) {}
 
-  //Subir el CV
+  /* ---------- subir y parsear ---------- */
   upload(file: File, userId = 1) {
+    // <- SIN CAMBIOS
     const form = new FormData();
-    form.append('file', file); // ⬅ nombre exacto del @RequestPart
+    form.append('file', file);
 
-    const params = new HttpParams().set('userId', String(userId)); // ⬅ nombre exacto del @RequestParam
-
-    return this.http.post(
-      '/api/cv/parse', // gateway lo reenvía al parser
-      form,
-      { params, responseType: 'text' } // el parser devuelve texto plano
-    ) as Observable<string>;
+    const params = new HttpParams().set('userId', userId);
+    return this.http.post(this.parserUrl, form, {
+      params,
+      responseType: 'text',
+    }) as Observable<string>;
   }
 
-  // Obtener CVs de un usuario
-  getCvsByUser(userId: number): Observable<any[]> {
-    const params = new HttpParams().set('user', userId.toString());
-    return this.http.get<any[]>(this.baseUrl, { params });
+  /* ---------- listar CVs de un usuario ---------- */
+  getCvsByUser(userId: number) {
+    const params = new HttpParams().set('user', userId);
+    return this.http.get<any[]>(this.coreBase, { params });
   }
 
-  // Obtener un CV específico
-  getCvById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  /* ---------- obtener CV concreto ---------- */
+  getCvById(id: number) {
+    return this.http.get<any>(`${this.coreBase}/${id}`);
   }
 }
