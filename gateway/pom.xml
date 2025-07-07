@@ -5,26 +5,26 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Spring Boot parent -->
+  <!-- ▸ Spring Boot 3.2.5  (compatible con Spring Cloud 2023) -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.0</version>
+    <version>3.2.5</version>
     <relativePath/>
   </parent>
 
+  <!-- 👇 coordenadas propias del módulo  -->
   <groupId>com.example</groupId>
-  <artifactId>demo</artifactId>
+  <artifactId>gateway</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>gateway</name>
-  <description>Gateway - Spring Cloud Gateway + Spring Boot 3.3</description>
 
   <properties>
-	<java.version>21</java.version>
-	<spring-cloud.version>2023.0.5</spring-cloud.version>
+    <java.version>21</java.version>
+    <spring-cloud.version>2023.0.5</spring-cloud.version>
   </properties>
 
-  <!-- Import the Spring Cloud BOM -->
+  <!-- BOM Spring Cloud -->
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -38,32 +38,45 @@
   </dependencyManagement>
 
   <dependencies>
-
-    <!-- WebFlux (necesario para Gateway) -->
+    <!-- WebFlux -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
 
-    <!-- ⭐ Spring Cloud Gateway (reactivo) -->
+    <!-- Gateway 4.1.4  ── con exclusión del server 4.1.6 que arrastra el BOM -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-gateway</artifactId>
+      <version>4.1.4</version>         <!-- ⬅ fuerza la versión -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-gateway-server</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
-    <!-- (opcional) Resource-server para proteger el gateway con JWT -->
+    <!-- Añadimos explícitamente el módulo server en la MISMA versión 4.1.4 -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-gateway-server</artifactId>
+      <version>4.1.4</version>
+    </dependency>
+
+    <!-- Seguridad -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+      <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
-    <!-- Actuator para health/info, métricas, etc. -->
+    <!-- Actuator -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
-    <!-- Test -->
+    <!-- Tests -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
