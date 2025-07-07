@@ -8,17 +8,18 @@ export class CvService {
 
   constructor(private http: HttpClient) {}
 
-  // Subir y parsear CV
-  upload(file: File, userId: number = 1): Observable<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const params = new HttpParams().set('userId', userId.toString());
-    
-    return this.http.post<string>(`${this.baseUrl}/parse`, formData, {
-      params,
-      responseType: 'text' as any
-    });
+  //Subir el CV
+  upload(file: File, userId = 1) {
+    const form = new FormData();
+    form.append('file', file); // ⬅ nombre exacto del @RequestPart
+
+    const params = new HttpParams().set('userId', String(userId)); // ⬅ nombre exacto del @RequestParam
+
+    return this.http.post(
+      '/api/cv/parse', // gateway lo reenvía al parser
+      form,
+      { params, responseType: 'text' } // el parser devuelve texto plano
+    ) as Observable<string>;
   }
 
   // Obtener CVs de un usuario
