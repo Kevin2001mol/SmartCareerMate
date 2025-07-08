@@ -35,8 +35,12 @@ services:
 
   # ─────────────────────────── IA / backend ─────────────────────────
   ollama:
-    image: ollama/ollama:latest
-    ports: ["11434:11434"]
+    build:
+      context: .               # raíz del repo
+      dockerfile: ai-ollama.Dockerfile
+    image: smartcareermate/ollama-llama3:latest
+    ports:
+      - "11434:11434"
 
   core-service:
     build: { context: ./core-service }
