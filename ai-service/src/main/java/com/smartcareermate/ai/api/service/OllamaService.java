@@ -1,5 +1,6 @@
 package com.smartcareermate.ai.api.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -7,27 +8,26 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class OllamaService {
 
-    private final WebClient client;
+    private final WebClient.Builder builder;
 
-    public OllamaService(WebClient.Builder builder,
-            @Value("${spring.ai.ollama.url}") String ollamaUrl) {
-        this.client = builder
-                .baseUrl(ollamaUrl) // http://ollama:11434
-                .build();
-    }
+    @Value("${spring.ai.ollama.url}")
+    private String baseUrl;
+    @Value("${spring.ai.ollama.model}")
+    private String model;
 
     public String chat(String prompt, double temperature) {
 
         Map<String, Object> body = Map.of(
-                "model", "llama3",
+                "model", model,
                 "prompt", prompt,
-                "temperature", temperature,
-                "stream", false);
+                "stream", false,
+                "options", Map.of("temperature", temperature));
 
-        return client.post()
-                .uri("/api/generate")
+        return builder.baseUrl(baseUrl).build()
+                .post().uri("/api/generate")
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(String.class)
