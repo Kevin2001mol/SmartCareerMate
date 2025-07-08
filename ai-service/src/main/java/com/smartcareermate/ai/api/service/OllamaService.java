@@ -1,5 +1,6 @@
 package com.smartcareermate.ai.api.service;
 
+import com.smartcareermate.ai.api.dto.OllamaRaw;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,8 @@ public class OllamaService {
                 .post().uri("/api/generate")
                 .bodyValue(body)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(OllamaRaw.class)
+                .map(OllamaRaw::getResponse)
                 .block();
     }
 }
