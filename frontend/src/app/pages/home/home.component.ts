@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor, NgClass, DatePipe } from '@angular/common'; // ← Añadir DatePipe aquí
 import { CvService } from '../../core/cv.service';
+import { AiService, RewritePayload } from '../../core/ai.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,7 +24,7 @@ interface ChatMsg {
     NgIf,
     NgFor,
     NgClass,
-    DatePipe,  // ← Añadir DatePipe aquí también
+    DatePipe, // ← Añadir DatePipe aquí también
     FormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -58,20 +59,25 @@ interface ChatMsg {
         <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
           <mat-icon>bug_report</mat-icon> Estado del sistema
         </h2>
-        
+
         <div class="space-y-2">
           <button mat-raised-button (click)="testConnection()" color="accent">
             <mat-icon>wifi</mat-icon> Test conexión backend
           </button>
-          
+
           <button mat-raised-button (click)="loadCvList()" color="primary">
             <mat-icon>refresh</mat-icon> Cargar lista de CVs
           </button>
-          
-          <p *ngIf="uploadStatus" [class]="uploadStatus.includes('✅') ? 'text-green-600' : 'text-red-600'">
+
+          <p
+            *ngIf="uploadStatus"
+            [class]="
+              uploadStatus.includes('✅') ? 'text-green-600' : 'text-red-600'
+            "
+          >
             Estado: {{ uploadStatus }}
           </p>
-          
+
           <div *ngIf="isLoading" class="flex items-center gap-2">
             <mat-icon class="animate-spin">refresh</mat-icon>
             <span>Procesando...</span>
@@ -86,8 +92,11 @@ interface ChatMsg {
         </h3>
         <div class="space-y-2">
           <div *ngFor="let cv of cvList" class="border rounded p-2">
-            <strong>{{ cv.originalName }}</strong> 
-            <small class="text-gray-500">(ID: {{ cv.id }}, subido: {{ cv.createdAt | date:'short' }})</small>
+            <strong>{{ cv.originalName }}</strong>
+            <small class="text-gray-500"
+              >(ID: {{ cv.id }}, subido:
+              {{ cv.createdAt | date : 'short' }})</small
+            >
             <p class="text-sm mt-1">{{ cv.rawText.substring(0, 100) }}...</p>
           </div>
         </div>
@@ -160,14 +169,18 @@ interface ChatMsg {
       </mat-card>
 
       <!-- 3-b Resultados ---------------------------------------------------- -->
-      <ng-container *ngIf="generatedCv || generatedLetter">
-        <mat-card appearance="outlined" *ngIf="generatedCv" class="p-4">
-          <h3 class="font-semibold mb-2 flex items-center gap-2">
-            <mat-icon>download</mat-icon> CV generado
+      <ng-container *ngIf="generatedCvText || generatedLetter">
+        <mat-card
+          appearance="outlined"
+          *ngIf="generatedCvText"
+          class="p-4 space-y-2"
+        >
+          <h3 class="font-semibold flex items-center gap-2">
+            <mat-icon>article</mat-icon> CV adaptado
           </h3>
-          <a [href]="generatedCv" download class="text-primary-600 underline">
-            Descargar CV
-          </a>
+          <textarea readonly rows="12" class="w-full border rounded p-2">
+        {{ generatedCvText }}</textarea
+          >
         </mat-card>
 
         <mat-card
@@ -253,9 +266,9 @@ export class HomeComponent {
   offerText = '';
   lang = 'es';
   tone = 'profesional';
-  generatedCv = ''; // URL o blob
-  generatedLetter = ''; // string
-  
+  generatedCvText = '';
+  generatedLetter = '';
+
   /* chat */
   level = 'principiante';
   chat: ChatMsg[] = [];
@@ -266,7 +279,7 @@ export class HomeComponent {
   cvList: any[] = [];
   isLoading = false;
 
-  constructor(private cvService: CvService) {}
+  constructor(private cvService: CvService, private ai: AiService) {}
 
   /** 1️⃣ Subir y parsear CV - MEJORADO */
   async onCv(e: Event) {
@@ -284,10 +297,9 @@ export class HomeComponent {
       const text = await firstValueFrom(this.cvService.upload(file, 1));
       this.parsedCv = text;
       this.uploadStatus = '✅ CV parseado exitosamente';
-      
+
       // Esperar un poco y luego cargar la lista de CVs
       setTimeout(() => this.loadCvList(), 2000);
-      
     } catch (err) {
       console.error('Error al parsear CV:', err);
       this.uploadStatus = '❌ Error al procesar el CV';
@@ -323,18 +335,44 @@ export class HomeComponent {
     }
   }
 
-  generateCv() {
-    // TODO: llamada real → this.generatedCv = url...
-    this.generatedCv = 'https://example.com/cv-result.pdf';
+  async generateCv() {
+    if (!this.parsedCv || !this.offerText) return;
+    this.isLoading = true;
+    const payload: RewritePayload = {
+      cvText: this.parsedCv,
+      offerText: this.offerText,
+      language: this.lang,
+      tone: this.tone,
+      temperature: 0.2,
+    };
+    try {
+      const res = await firstValueFrom(this.ai.rewrite(payload));
+      this.generatedCvText = res.text;
+    } catch (err) {
+      console.error('Error AI rewrite:', err);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  generateLetter() {
-    // TODO: llamada real → this.generatedLetter = res.text ...
-    this.generatedLetter = `Estimado equipo:
-
-Adjunto mi CV adaptado a la vacante... [demo]
-
-Un saludo.`;
+  async generateLetter() {
+    if (!this.parsedCv || !this.offerText) return;
+    this.isLoading = true;
+    const payload: RewritePayload = {
+      cvText: this.parsedCv,
+      offerText: this.offerText,
+      language: this.lang,
+      tone: this.tone,
+      temperature: 0.2,
+    };
+    try {
+      const res = await firstValueFrom(this.ai.coverLetter(payload));
+      this.generatedLetter = res.text;
+    } catch (err) {
+      console.error('Error AI cover-letter:', err);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   sendMsg() {
