@@ -1,7 +1,6 @@
-// src/app/pages/home/home.component.ts
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor, NgClass, DatePipe } from '@angular/common'; // ← Añadir DatePipe aquí
+import { NgIf, NgFor, NgClass, DatePipe, DecimalPipe } from '@angular/common';
 import { CvService } from '../../core/cv.service';
 import { AiService, RewritePayload } from '../../core/ai.service';
 import { MatCardModule } from '@angular/material/card';
@@ -11,6 +10,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { firstValueFrom } from 'rxjs';
+import {
+  InterviewService,
+  QA,
+  InterviewTurn,
+} from '../../core/interview.service';
+import { InterviewResponse } from '../../core/interview.service';
+import { Level } from '../../core/interview.service';
 
 interface ChatMsg {
   from: 'user' | 'bot';
@@ -24,7 +30,8 @@ interface ChatMsg {
     NgIf,
     NgFor,
     NgClass,
-    DatePipe, // ← Añadir DatePipe aquí también
+    DatePipe,
+    DecimalPipe,
     FormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -199,6 +206,8 @@ interface ChatMsg {
 
       <!-- 4. Chat entrevista ----------------------------------------------- -->
       <mat-card appearance="outlined" class="p-4 space-y-4">
+
+        <!-- cabecera: título, nivel y botones -->
         <div class="flex items-center gap-4 flex-wrap">
           <h2 class="text-xl font-semibold flex items-center gap-2 m-0">
             <mat-icon>chat</mat-icon> Entrevista simulada
@@ -212,55 +221,59 @@ interface ChatMsg {
               <mat-option value="avanzado">Avanzado</mat-option>
             </mat-select>
           </mat-form-field>
-        </div>
+
+          <button mat-stroked-button color="primary"
+                  (click)="startInterview()"
+                  [disabled]="interviewActive || !parsedCv || !offerText">
+            <mat-icon>play_arrow</mat-icon> Iniciar entrevista
+          </button>
+
+          <button mat-stroked-button color="warn"
+                  (click)="endInterview()"
+                  [disabled]="!interviewActive">
+            <mat-icon>stop</mat-icon> Terminar
+          </button>
+        </div> <!-- ← único cierre del div de cabecera -->
 
         <!-- ventana chat -->
-        <div
-          class="border rounded h-64 overflow-y-auto p-2 space-y-2 bg-slate-50"
-        >
-          <div
-            *ngFor="let m of chat"
-            [ngClass]="{
-              'text-right': m.from === 'user',
-              'text-left': m.from === 'bot'
-            }"
-          >
-            <span
-              class="inline-block px-3 py-1 rounded-lg"
-              [ngClass]="
-                m.from === 'user'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white border'
-              "
-            >
+        <div class="border rounded h-64 overflow-y-auto p-2 space-y-2 bg-slate-50">
+          <div *ngFor="let m of chat"
+              [ngClass]="{ 'text-right': m.from === 'user',
+                            'text-left':  m.from === 'bot' }">
+            <span class="inline-block px-3 py-1 rounded-lg"
+                  [ngClass]="m.from === 'user'
+                              ? 'bg-primary-600 text-white'
+                              : 'bg-white border'">
               {{ m.text }}
             </span>
           </div>
         </div>
 
+        <!-- input -->
         <form (submit)="sendMsg()" class="flex gap-2">
-          <input
-            matInput
-            placeholder="Escribe tu respuesta…"
-            [(ngModel)]="chatInput"
-            name="msg"
-            class="flex-1 border rounded p-2"
-          />
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="!chatInput.trim()"
-          >
-            Enviar
-          </button>
+          <input matInput
+                placeholder="Escribe tu respuesta…"
+                [(ngModel)]="chatInput"
+                name="msg"
+                class="flex-1 border rounded p-2" />
+          <button mat-raised-button color="primary" type="submit"
+                  [disabled]="!chatInput.trim()">Enviar</button>
         </form>
-      </mat-card>
-    </div>
+
+        <!-- feedback -->
+        <div *ngIf="lastFeedback" class="text-sm text-gray-500">
+          <mat-icon inline>info</mat-icon>
+          <strong>Feedback:</strong> {{ lastFeedback }}
+          <span *ngIf="lastScore !== null">
+            – Puntuación: {{ lastScore | number:'1.0-2' }}
+          </span>
+        </div>
+
+      </mat-card> <!-- ← cierre del mat-card -->
   `,
 })
 export class HomeComponent {
-  /* -------------------------- estado demo ----------------------------- */
+  /* =============== Estado general =============== */
   cvName = '';
   parsedCv = '';
   offerText = '';
@@ -269,17 +282,25 @@ export class HomeComponent {
   generatedCvText = '';
   generatedLetter = '';
 
-  /* chat */
-  level = 'principiante';
-  chat: ChatMsg[] = [];
-  chatInput = '';
-
-  /* debugging */
   uploadStatus = '';
   cvList: any[] = [];
   isLoading = false;
 
-  constructor(private cvService: CvService, private ai: AiService) {}
+  /* =============== Entrevista =============== */
+  interviewActive = false;
+  chat: ChatMsg[] = [];
+  chatInput = '';
+  history: QA[] = [];
+  currentQuestion = '';
+  lastFeedback = '';
+  lastScore: number | null = null;
+  level: Level = 'principiante';
+
+  constructor(
+    private cvService: CvService,
+    private ai: AiService,
+    private interview: InterviewService
+  ) {}
 
   /** 1️⃣ Subir y parsear CV - MEJORADO */
   async onCv(e: Event) {
@@ -374,15 +395,98 @@ export class HomeComponent {
       this.isLoading = false;
     }
   }
+  async startInterview() {
+    this.chat = [];
+    this.history = [];
+    this.lastFeedback = '';
+    this.lastScore = null;
+    this.interviewActive = true;
 
-  sendMsg() {
-    if (!this.chatInput.trim()) return;
-    this.chat.push({ from: 'user', text: this.chatInput });
-    // respuesta simulada
-    this.chat.push({
-      from: 'bot',
-      text: `[AI nivel ${this.level}] …respuesta demo…`,
+    try {
+      const first = await firstValueFrom(
+        this.interview.turn({
+          cvJson: this.parsedCv,
+          offerText: this.offerText,
+          history: [],
+          level: this.level,
+        })
+      );
+
+      this.pushBot(first);
+    } catch (err) {
+      console.error('Error al iniciar entrevista:', err);
+      this.interviewActive = false;
+    }
+  }
+
+  async sendMsg() {
+    if (!this.chatInput.trim() || !this.interviewActive) return;
+
+    const answer = this.chatInput.trim();
+    this.chat.push({ from: 'user', text: answer });
+    this.scrollChatToBottom();
+
+    this.history.push({ question: this.currentQuestion, answer });
+
+    const turn: InterviewTurn = {
+      cvJson: this.parsedCv,
+      offerText: this.offerText,
+      history: this.history,
+      level: this.level,
+    };
+
+    try {
+      const res = await firstValueFrom(this.interview.turn(turn));
+      this.pushBot(res);
+    } catch (err) {
+      console.error('Error entrevista:', err);
+      this.chat.push({
+        from: 'bot',
+        text: '⚠️ Hubo un problema, inténtalo de nuevo.',
+      });
+      this.scrollChatToBottom();
+    } finally {
+      this.chatInput = '';
+    }
+  }
+
+  endInterview() {
+    this.interviewActive = false;
+    this.history = [];
+    this.currentQuestion = '';
+    this.lastFeedback = '';
+    this.lastScore = null;
+    this.chat.push({ from: 'bot', text: 'Entrevista finalizada. ¡Gracias!' });
+    this.scrollChatToBottom();
+  }
+
+  /* ───────────────────────── helpers ───────────────────────── */
+
+  private pushBot(res: InterviewResponse) {
+    /* feedback del turno anterior */
+    this.lastFeedback = res.feedback ?? '';
+    this.lastScore = res.score;
+
+    if (this.lastFeedback) {
+      this.chat.push({
+        from: 'bot',
+        text: `📝 Feedback: ${this.lastFeedback} (score ${(
+          this.lastScore * 100
+        ).toFixed(0)} %)`,
+      });
+    }
+
+    /* siguiente pregunta */
+    this.currentQuestion = res.question;
+    this.chat.push({ from: 'bot', text: res.question });
+    this.scrollChatToBottom();
+  }
+
+  /** desplaza la ventana de chat al final */
+  private scrollChatToBottom() {
+    setTimeout(() => {
+      const box = document.querySelector<HTMLElement>('.border.rounded.h-64');
+      box?.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
     });
-    this.chatInput = '';
   }
 }
