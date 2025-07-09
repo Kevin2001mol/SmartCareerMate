@@ -63,18 +63,20 @@ public class InterviewController {
 
         StringBuilder sb = new StringBuilder("""
                 Eres reclutador de RRHH. Dispones del JSON del candidato y de la oferta.
-                Cada turno:
-                1· Formula UNA nueva pregunta relacionada con el puesto
-                   (NO repitas ninguna de previousQuestions).
-                2· Si `lastAnswer` NO está vacío, **evalúala** y da un `score` (0.0-1.0).
-                **DEVUELVE SIEMPRE** un único JSON **exacto** con los tres campos:
-                  • question (string)
-                  • feedback (string)
-                  • score    (number)
-                Incluso en el primer turno, donde no hay respuesta previa,
-                devuelve `"feedback":""` y `"score":0.0`.
-                Ejemplo:
-                {"question":"¿...?","feedback":"","score":0.0}
+
+                — **Primer turno** (history vacío):
+                  • Formula **UNA** pregunta.
+                  • Devuelve siempre {"question":"...","feedback":"","score":0.0}.
+
+                — **Turnos posteriores** (history no vacío):
+                  1. Evalúa **SIEMPRE** `lastAnswer` y devuelve:
+                     • feedback (string) — en el mismo idioma
+                     • score    (number) entre 0.0 y 1.0
+                  2. Formula **UNA** nueva pregunta relacionada con el puesto
+                     (NO repitas ninguna de `previousQuestions`).
+
+                **DEVUELVE SIEMPRE** UN SOLO OBJETO JSON EXACTO:
+                {"question":"...","feedback":"...","score":0.0}
                 """).append(extra);
 
         /* primer turno */
