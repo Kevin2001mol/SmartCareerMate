@@ -16,7 +16,7 @@ import {
   InterviewTurn,
 } from '../../core/interview.service';
 import { InterviewResponse } from '../../core/interview.service';
-import { Level } from '../../core/interview.service';
+import { Level, Tone, Language } from '../../core/interview.service';
 
 interface ChatMsg {
   from: 'user' | 'bot';
@@ -136,7 +136,7 @@ interface ChatMsg {
 
           <mat-form-field appearance="fill" class="w-full">
             <mat-label>Idioma</mat-label>
-            <mat-select [(ngModel)]="lang">
+            <mat-select [(ngModel)]="language">
               <mat-option value="es">Español</mat-option>
               <mat-option value="en">Inglés</mat-option>
               <mat-option value="fr">Francés</mat-option>
@@ -206,7 +206,6 @@ interface ChatMsg {
 
       <!-- 4. Chat entrevista ----------------------------------------------- -->
       <mat-card appearance="outlined" class="p-4 space-y-4">
-
         <!-- cabecera: título, nivel y botones -->
         <div class="flex items-center gap-4 flex-wrap">
           <h2 class="text-xl font-semibold flex items-center gap-2 m-0">
@@ -222,28 +221,43 @@ interface ChatMsg {
             </mat-select>
           </mat-form-field>
 
-          <button mat-stroked-button color="primary"
-                  (click)="startInterview()"
-                  [disabled]="interviewActive || !parsedCv || !offerText">
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="startInterview()"
+            [disabled]="interviewActive || !parsedCv || !offerText"
+          >
             <mat-icon>play_arrow</mat-icon> Iniciar entrevista
           </button>
 
-          <button mat-stroked-button color="warn"
-                  (click)="endInterview()"
-                  [disabled]="!interviewActive">
+          <button
+            mat-stroked-button
+            color="warn"
+            (click)="endInterview()"
+            [disabled]="!interviewActive"
+          >
             <mat-icon>stop</mat-icon> Terminar
           </button>
-        </div> <!-- ← único cierre del div de cabecera -->
+        </div>
+        <!-- ← único cierre del div de cabecera -->
 
         <!-- ventana chat -->
-        <div class="border rounded h-64 overflow-y-auto p-2 space-y-2 bg-slate-50">
-          <div *ngFor="let m of chat"
-              [ngClass]="{ 'text-right': m.from === 'user',
-                            'text-left':  m.from === 'bot' }">
-            <span class="inline-block px-3 py-1 rounded-lg"
-                  [ngClass]="m.from === 'user'
-                              ? 'bg-primary-600 text-white'
-                              : 'bg-white border'">
+        <div
+          class="border rounded h-64 overflow-y-auto p-2 space-y-2 bg-slate-50"
+        >
+          <div
+            *ngFor="let m of chat"
+            [ngClass]="{
+              'text-right': m.from === 'user',
+              'text-left': m.from === 'bot'
+            }"
+          >
+            <span
+              class="inline-block px-3 py-1 rounded-lg"
+              [ngClass]="
+                m.from === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'
+              "
+            >
               {{ m.text }}
             </span>
           </div>
@@ -251,13 +265,21 @@ interface ChatMsg {
 
         <!-- input -->
         <form (submit)="sendMsg()" class="flex gap-2">
-          <input matInput
-                placeholder="Escribe tu respuesta…"
-                [(ngModel)]="chatInput"
-                name="msg"
-                class="flex-1 border rounded p-2" />
-          <button mat-raised-button color="primary" type="submit"
-                  [disabled]="!chatInput.trim()">Enviar</button>
+          <input
+            matInput
+            placeholder="Escribe tu respuesta…"
+            [(ngModel)]="chatInput"
+            name="msg"
+            class="flex-1 border rounded p-2"
+          />
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="!chatInput.trim()"
+          >
+            Enviar
+          </button>
         </form>
 
         <!-- feedback -->
@@ -265,11 +287,12 @@ interface ChatMsg {
           <mat-icon inline>info</mat-icon>
           <strong>Feedback:</strong> {{ lastFeedback }}
           <span *ngIf="lastScore !== null">
-            – Puntuación: {{ lastScore | number:'1.0-2' }}
+            – Puntuación: {{ lastScore | number : '1.0-2' }}
           </span>
         </div>
-
-      </mat-card> <!-- ← cierre del mat-card -->
+      </mat-card>
+      <!-- ← cierre del mat-card -->
+    </div>
   `,
 })
 export class HomeComponent {
@@ -277,8 +300,6 @@ export class HomeComponent {
   cvName = '';
   parsedCv = '';
   offerText = '';
-  lang = 'es';
-  tone = 'profesional';
   generatedCvText = '';
   generatedLetter = '';
 
@@ -295,6 +316,8 @@ export class HomeComponent {
   lastFeedback = '';
   lastScore: number | null = null;
   level: Level = 'principiante';
+  language: Language = 'es';
+  tone: Tone = 'profesional';
 
   constructor(
     private cvService: CvService,
@@ -362,7 +385,7 @@ export class HomeComponent {
     const payload: RewritePayload = {
       cvText: this.parsedCv,
       offerText: this.offerText,
-      language: this.lang,
+      language: this.language,
       tone: this.tone,
       temperature: 0.2,
     };
@@ -382,7 +405,7 @@ export class HomeComponent {
     const payload: RewritePayload = {
       cvText: this.parsedCv,
       offerText: this.offerText,
-      language: this.lang,
+      language: this.language,
       tone: this.tone,
       temperature: 0.2,
     };
@@ -395,6 +418,7 @@ export class HomeComponent {
       this.isLoading = false;
     }
   }
+  /* ========== Entrevista ========== */
   async startInterview() {
     this.chat = [];
     this.history = [];
@@ -409,6 +433,8 @@ export class HomeComponent {
           offerText: this.offerText,
           history: [],
           level: this.level,
+          language: this.language,
+          tone: this.tone
         })
       );
 
@@ -418,36 +444,61 @@ export class HomeComponent {
       this.interviewActive = false;
     }
   }
+  /* ========== propiedades ========== */
+  isWaiting = false;
+  pendingIndex: number | null = null; // dónde está el placeholder
 
+  /* ========== sendMsg() ========== */
   async sendMsg() {
-    if (!this.chatInput.trim() || !this.interviewActive) return;
+    if (!this.chatInput.trim() || !this.interviewActive || this.isWaiting)
+      return;
 
     const answer = this.chatInput.trim();
     this.chat.push({ from: 'user', text: answer });
-    this.scrollChatToBottom();
-
     this.history.push({ question: this.currentQuestion, answer });
+    this.chatInput = '';
 
-    const turn: InterviewTurn = {
-      cvJson: this.parsedCv,
-      offerText: this.offerText,
-      history: this.history,
-      level: this.level,
-    };
+    /* placeholder mientras esperamos al backend */
+    this.isWaiting = true;
+    this.pendingIndex = this.chat.length;
+    this.chat.push({ from: 'bot', text: '💬 Pensando…' });
 
     try {
-      const res = await firstValueFrom(this.interview.turn(turn));
-      this.pushBot(res);
+      const res = await firstValueFrom(
+        this.interview.turn({
+          cvJson: this.parsedCv,
+          offerText: this.offerText,
+          history: this.history,
+          level: this.level,
+          language: this.language,
+          tone: this.tone,
+        })
+      );
+      /* remplaza placeholder */
+      this.chat[this.pendingIndex] = { from: 'bot', text: res.question };
+      this.pendingIndex = null;
+      this.pushFeedback(res);
     } catch (err) {
-      console.error('Error entrevista:', err);
-      this.chat.push({
+      this.chat[this.pendingIndex ?? this.chat.length - 1] = {
         from: 'bot',
         text: '⚠️ Hubo un problema, inténtalo de nuevo.',
-      });
-      this.scrollChatToBottom();
+      };
     } finally {
-      this.chatInput = '';
+      this.isWaiting = false;
     }
+  }
+
+  /* feedback separado */
+  private pushFeedback(res: InterviewResponse) {
+    if (res.feedback) {
+      this.chat.push({
+        from: 'bot',
+        text: `📝 Feedback: ${res.feedback} (score ${(res.score * 100).toFixed(
+          0
+        )} %)`,
+      });
+    }
+    this.currentQuestion = res.question;
   }
 
   endInterview() {

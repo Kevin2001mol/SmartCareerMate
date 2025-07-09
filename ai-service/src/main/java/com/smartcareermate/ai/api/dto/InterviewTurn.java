@@ -1,4 +1,3 @@
-// InterviewTurn.java
 package com.smartcareermate.ai.api.dto;
 
 import lombok.AllArgsConstructor;
@@ -8,19 +7,21 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * Primer turno: cvJson y offerText rellenos, history vacío.<br>
- * Turnos siguientes: solo history con el último par PREGUNTA / RESPUESTA.
+ * Primer turno: cvJson y offerText rellenos, history vacío.
+ * Turnos siguientes: history con pares PREGUNTA / RESPUESTA.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterviewTurn {
 
-    private String cvJson;      // sólo se manda en el 1er turno
-    private String offerText;   // idem
-    private List<QA> history;   // historial (puede ir creciendo)
+    private String cvJson;
+    private String offerText;
+    private List<QA> history;
+    private String level;
+    private String language;
+    private String tone;
 
-    /** Para Pregunta / Respuesta previa */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

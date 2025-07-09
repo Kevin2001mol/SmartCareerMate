@@ -4,16 +4,21 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 /* ---------- DTOs igual que en Java ---------- */
-export interface QA { question: string; answer: string; }
-export type Level = 'principiante' | 'medio' | 'avanzado';
-
-export interface InterviewTurn {
-  cvJson:   string;
-  offerText: string;
-  history:   QA[];
-  level:     Level;
+export interface QA {
+  question: string;
+  answer: string;
 }
-
+export type Level = 'principiante' | 'medio' | 'avanzado';
+export type Language = 'es' | 'en' | 'fr';
+export type Tone = 'formal' | 'profesional' | 'cercano';
+export interface InterviewTurn {
+  cvJson: string;
+  offerText: string;
+  history: QA[];
+  level: Level;
+  language: Language;
+  tone: Tone;
+}
 
 export interface InterviewResponse {
   question: string;
