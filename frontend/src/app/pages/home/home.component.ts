@@ -191,7 +191,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     this.interviewPendingIndex = this.chat.length; // será 0
     this.chat.push({
       from: 'bot',
-      text: '⏳ Un momento, el reclutador está de camino…',
+      text: '⏳ Un momento, el reclutador está de camino, vaya tomando asiento…',
     });
 
     try {
