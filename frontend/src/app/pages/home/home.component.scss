@@ -1,0 +1,59 @@
+/* Ajustar margen top para compensar toolbar fijo */
+#top,
+#interview-section {
+  scroll-margin-top: 4rem;
+}
+
+/* Ejemplo de extracción de utilidades Tailwind */
+.upload-card {
+  @apply p-4;
+}
+.card-title {
+  @apply text-xl font-semibold mb-4 flex items-center gap-2;
+}
+.upload-dropzone {
+  @apply border-2 border-dashed rounded-md w-full h-40
+         flex flex-col justify-center items-center
+         text-slate-500 hover:bg-slate-50 cursor-pointer;
+}
+.upload-icon {
+  @apply text-4xl;
+}
+.upload-ok {
+  @apply mt-2 text-sm text-emerald-600 flex items-center gap-1;
+}
+.debug-card {
+  @apply p-4;
+}
+.debug-actions {
+  @apply space-y-2;
+}
+.stored-list {
+  @apply p-4;
+}
+.cv-item {
+  @apply border rounded p-2 space-y-1;
+}
+.cv-preview {
+  @apply text-sm mt-1;
+}
+.offer-config {
+  @apply flex flex-col md:flex-row gap-6;
+}
+.offer-box {
+  @apply flex-1 p-4;
+}
+.config-box {
+  @apply w-full md:w-72 shrink-0 p-4 space-y-4;
+}
+.full-width {
+  @apply w-full;
+}
+.actions {
+  @apply p-4 flex flex-wrap gap-4;
+}
+.interview-card {
+  @apply p-4 space-y-4;
+}
+
+/* Aquí añade cualquier otro estilo específico que necesites */

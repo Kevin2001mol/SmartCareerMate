@@ -1,46 +1,39 @@
 <div id="top" class="container mx-auto max-w-7xl p-4 space-y-6">
-  <!-- 1. Cargar CV ------------------------------------------------------ -->
-  <mat-card appearance="outlined" class="p-4">
-    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-      <mat-icon>upload</mat-icon> Cargar CV
-    </h2>
-    <label
-      class="border-2 border-dashed rounded-md w-full h-40 flex flex-col justify-center items-center text-slate-500 hover:bg-slate-50 cursor-pointer"
-    >
+  <!-- 1. Cargar CV -->
+  <mat-card appearance="outlined" class="upload-card">
+    <h2 class="card-title"><mat-icon>upload</mat-icon> Cargar CV</h2>
+    <label class="upload-dropzone">
       <input type="file" accept=".pdf" hidden (change)="onCv($event)" />
-      <mat-icon class="text-4xl">cloud_upload</mat-icon>
-      <span class="mt-2">Arrastra o haz clic para subir PDF</span>
+      <mat-icon class="upload-icon">cloud_upload</mat-icon>
+      <span>Arrastra o haz clic para subir PDF</span>
     </label>
-    <p *ngIf="cvName" class="mt-2 text-sm text-emerald-600">
-      <mat-icon class="text-base">check_circle</mat-icon> {{ cvName }}
+    <p *ngIf="cvName" class="upload-ok">
+      <mat-icon>check_circle</mat-icon> {{ cvName }}
     </p>
   </mat-card>
 
   <!-- Sección de debugging -->
-  <mat-card appearance="outlined" class="p-4">
-    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+  <mat-card appearance="outlined" class="debug-card">
+    <h2 class="card-title">
       <mat-icon>bug_report</mat-icon> Estado del sistema
     </h2>
-
-    <div class="space-y-2">
+    <div class="debug-actions">
       <button mat-raised-button (click)="testConnection()" color="accent">
         <mat-icon>wifi</mat-icon> Test conexión backend
       </button>
-
       <button mat-raised-button (click)="loadCvList()" color="primary">
         <mat-icon>refresh</mat-icon> Cargar lista de CVs
       </button>
-
       <p
         *ngIf="uploadStatus"
-        [class]="
-          uploadStatus.includes('✅') ? 'text-green-600' : 'text-red-600'
-        "
+        [ngClass]="{
+          ok: uploadStatus.includes('✅'),
+          error: !uploadStatus.includes('✅')
+        }"
       >
         Estado: {{ uploadStatus }}
       </p>
-
-      <div *ngIf="isLoading" class="flex items-center gap-2">
+      <div *ngIf="isLoading" class="loading">
         <mat-icon class="animate-spin">refresh</mat-icon>
         <span>Procesando...</span>
       </div>
@@ -48,47 +41,36 @@
   </mat-card>
 
   <!-- Lista de CVs almacenados -->
-  <mat-card appearance="outlined" class="p-4" *ngIf="cvList.length > 0">
-    <h3 class="font-semibold mb-2 flex items-center gap-2">
+  <mat-card *ngIf="cvList.length > 0" appearance="outlined" class="stored-list">
+    <h3 class="card-title">
       <mat-icon>list</mat-icon> CVs almacenados ({{ cvList.length }})
     </h3>
-    <div class="space-y-2">
-      <div *ngFor="let cv of cvList" class="border rounded p-2">
-        <strong>{{ cv.originalName }}</strong>
-        <small class="text-gray-500"
-          >(ID: {{ cv.id }}, subido: {{ cv.createdAt | date : "short" }})</small
-        >
-        <p class="text-sm mt-1">{{ cv.rawText.substring(0, 100) }}...</p>
-      </div>
+    <div class="cv-item" *ngFor="let cv of cvList">
+      <strong>{{ cv.originalName }}</strong>
+      <small
+        >(ID: {{ cv.id }}, subido: {{ cv.createdAt | date : "short" }})</small
+      >
+      <p class="cv-preview">{{ cv.rawText.substring(0, 100) }}…</p>
     </div>
   </mat-card>
 
-  <!-- 2. Oferta + Ajustes ---------------------------------------------- -->
-  <div class="flex flex-col md:flex-row gap-6">
-    <!-- Oferta -->
-    <mat-card appearance="outlined" class="flex-1 p-4">
-      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+  <!-- 2. Oferta + Ajustes -->
+  <div class="offer-config">
+    <mat-card appearance="outlined" class="offer-box">
+      <h2 class="card-title">
         <mat-icon>work</mat-icon> Información de la oferta
       </h2>
       <textarea
         matInput
         rows="10"
         [(ngModel)]="offerText"
-        placeholder="Pega aquí la descripción o enlace…"
-        class="w-full resize-y border rounded p-2"
+        placeholder="Pega aquí…"
       ></textarea>
     </mat-card>
 
-    <!-- Config -->
-    <mat-card
-      appearance="outlined"
-      class="w-full md:w-72 shrink-0 p-4 space-y-4"
-    >
-      <h2 class="text-lg font-semibold flex items-center gap-2">
-        <mat-icon>translate</mat-icon> Configuración
-      </h2>
-
-      <mat-form-field appearance="fill" class="w-full">
+    <mat-card appearance="outlined" class="config-box">
+      <h2 class="card-title"><mat-icon>translate</mat-icon> Configuración</h2>
+      <mat-form-field appearance="fill" class="full-width">
         <mat-label>Idioma</mat-label>
         <mat-select [(ngModel)]="language">
           <mat-option value="es">Español</mat-option>
@@ -96,8 +78,7 @@
           <mat-option value="fr">Francés</mat-option>
         </mat-select>
       </mat-form-field>
-
-      <mat-form-field appearance="fill" class="w-full">
+      <mat-form-field appearance="fill" class="full-width">
         <mat-label>Tono</mat-label>
         <mat-select [(ngModel)]="tone">
           <mat-option value="formal">Formal</mat-option>
@@ -108,8 +89,8 @@
     </mat-card>
   </div>
 
-  <!-- 3. Botones de generación ----------------------------------------- -->
-  <mat-card appearance="outlined" class="p-4 flex flex-wrap gap-4">
+  <!-- 3. Botones de generación -->
+  <mat-card appearance="outlined" class="actions">
     <button
       mat-raised-button
       color="primary"
@@ -118,7 +99,6 @@
     >
       <mat-icon>description</mat-icon> Generar CV adaptado
     </button>
-
     <button
       mat-raised-button
       color="accent"
@@ -159,7 +139,7 @@
   </ng-container>
 
   <!-- 4. Chat entrevista ----------------------------------------------- -->
-  <mat-card id="interview-section" appearance="outlined" class="p-4 space-y-4">
+  <mat-card id="interview-section" appearance="outlined" class="interview-card">
     <div class="flex items-center gap-4 flex-wrap">
       <h2 class="text-xl font-semibold flex items-center gap-2 m-0">
         <mat-icon>chat</mat-icon> Entrevista simulada

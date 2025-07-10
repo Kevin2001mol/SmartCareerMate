@@ -53,6 +53,7 @@ interface ChatMsg {
     MatIconModule,
   ],
   templateUrl: './home.component.html',
+  styleUrls:   ['./home.component.scss'],
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
