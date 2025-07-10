@@ -7,10 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-/*import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-*/
+
 @Configuration
 public class GatewayConfig {
 
@@ -20,17 +17,29 @@ public class GatewayConfig {
     public RouteLocator routes(RouteLocatorBuilder builder) {
         GatewayFilter logFilter = (exchange, chain) -> {
             String path = exchange.getRequest().getPath().toString();
-            logger.info("[Gateway] Request received for path: {}", path);
-            return chain.filter(exchange);
+            String method = exchange.getRequest().getMethod().toString();
+            String uri = exchange.getRequest().getURI().toString();
+            
+            logger.info("[Gateway] {} request received for path: {}, full URI: {}", method, path, uri);
+            
+            return chain.filter(exchange)
+                .doOnNext(response -> {
+                    logger.info("[Gateway] Response status: {} for path: {}", 
+                        exchange.getResponse().getStatusCode(), path);
+                })
+                .doOnError(error -> {
+                    logger.error("[Gateway] Error processing request for path {}: {}", 
+                        path, error.getMessage(), error);
+                });
         };
+        
         return builder.routes()
-
-            //  ❯❯  IA  (puerto 8083)
+            //  ❯❯  AI-service (puerto interno 8083)
             .route("ai", r -> r.path("/ai/**")
                                .filters(f -> f.filter(logFilter))
                                .uri("http://ai-service:8083"))
 
-            //  ❯❯  Core-service  (puerto 8082)
+            //  ❯❯  Core-service (puerto interno 8082)
             .route("core", r -> r.path("/api/**")
                                  .filters(f -> f.filter(logFilter))
                                  .uri("http://core-service:8082"))

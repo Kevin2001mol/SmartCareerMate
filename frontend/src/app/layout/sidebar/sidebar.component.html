@@ -1,0 +1,25 @@
+<!-- Ponemos el header fixed y con z-index alto -->
+<app-header
+  class="fixed top-0 left-0 right-0 z-30"
+  (toggleSidebar)="sidebarCollapsed = !sidebarCollapsed"
+></app-header>
+
+<!-- Añadimos pt-16 para “tirar” todo el contenido por debajo del header (64px por defecto) -->
+<div class="flex h-screen pt-16">
+  <!-- Sidebar sigue fijo, pero bajo el header gracias al z-10 -->
+  <app-sidebar
+    [collapsed]="sidebarCollapsed"
+    class="fixed top-16 left-0 bottom-0 z-10"
+  ></app-sidebar>
+
+  <!-- Main con margen-left dinámico -->
+  <main
+    [ngClass]="{
+      'ml-0': sidebarCollapsed,
+      'ml-64': !sidebarCollapsed
+    }"
+    class="flex-1 overflow-auto p-4"
+  >
+    <router-outlet></router-outlet>
+  </main>
+</div>

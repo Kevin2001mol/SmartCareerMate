@@ -33,7 +33,7 @@ public class PingController {
         logger.info("[PingController] Using Ollama URL from config");
         // Construir el cuerpo de la petición para /api/generate
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "mistral");
+        requestBody.put("model", "llama3"); // changed from "mistral" to "llama3"
         requestBody.put("prompt", "Say 'Hello' in Spanish");
         requestBody.put("stream", false);
         logger.info("[PingController] Request body: {}", requestBody);
