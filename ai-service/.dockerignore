@@ -1,0 +1,3 @@
+# ai-service/.dockerignore
+target/
+.idea/
