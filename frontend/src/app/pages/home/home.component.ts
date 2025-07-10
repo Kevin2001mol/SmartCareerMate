@@ -1,22 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  ViewportScroller,
+  NgIf,
+  NgFor,
+  NgClass,
+  DatePipe,
+  DecimalPipe,
+} from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor, NgClass, DatePipe, DecimalPipe } from '@angular/common';
+import { Subject, firstValueFrom } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { CvService } from '../../core/cv.service';
 import { AiService, RewritePayload } from '../../core/ai.service';
+import {
+  InterviewService,
+  QA,
+  InterviewResponse,
+  Level,
+  Tone,
+  Language,
+} from '../../core/interview.service';
+import { ScrollService } from '../../core/scroll.service';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { firstValueFrom } from 'rxjs';
-import {
-  InterviewService,
-  QA,
-  InterviewTurn,
-} from '../../core/interview.service';
-import { InterviewResponse } from '../../core/interview.service';
-import { Level, Tone, Language } from '../../core/interview.service';
 
 interface ChatMsg {
   from: 'user' | 'bot';
@@ -24,8 +36,8 @@ interface ChatMsg {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-home',
+  standalone: true,
   imports: [
     NgIf,
     NgFor,
@@ -41,7 +53,7 @@ interface ChatMsg {
     MatIconModule,
   ],
   template: `
-    <div class="container mx-auto max-w-7xl p-4 space-y-6">
+    <div id="top" class="container mx-auto max-w-7xl p-4 space-y-6">
       <!-- 1. Cargar CV ------------------------------------------------------ -->
       <mat-card appearance="outlined" class="p-4">
         <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -205,7 +217,11 @@ interface ChatMsg {
       </ng-container>
 
       <!-- 4. Chat entrevista ----------------------------------------------- -->
-      <mat-card appearance="outlined" class="p-4 space-y-4">
+      <mat-card
+        id="interview-section"
+        appearance="outlined"
+        class="p-4 space-y-4"
+      >
         <!-- cabecera: título, nivel y botones -->
         <div class="flex items-center gap-4 flex-wrap">
           <h2 class="text-xl font-semibold flex items-center gap-2 m-0">
@@ -295,14 +311,15 @@ interface ChatMsg {
     </div>
   `,
 })
-export class HomeComponent {
+export class HomeComponent implements AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   /* =============== Estado general =============== */
   cvName = '';
   parsedCv = '';
   offerText = '';
   generatedCvText = '';
   generatedLetter = '';
-
   uploadStatus = '';
   cvList: any[] = [];
   isLoading = false;
@@ -322,9 +339,27 @@ export class HomeComponent {
   constructor(
     private cvService: CvService,
     private ai: AiService,
-    private interview: InterviewService
+    private interview: InterviewService,
+    private scroll: ScrollService,
+    private vps: ViewportScroller
   ) {}
 
+  ngAfterViewInit() {
+    this.scroll.onTop$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const topEl = document.getElementById('top');
+      topEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    this.scroll.onInterview$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      const interviewEl = document.getElementById('interview-section');
+      interviewEl?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   /** 1️⃣ Subir y parsear CV - MEJORADO */
   async onCv(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -434,7 +469,7 @@ export class HomeComponent {
           history: [],
           level: this.level,
           language: this.language,
-          tone: this.tone
+          tone: this.tone,
         })
       );
 
