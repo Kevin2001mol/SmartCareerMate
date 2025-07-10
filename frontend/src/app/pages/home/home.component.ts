@@ -176,12 +176,23 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   }
 
   /* ========== Entrevista ========== */
+  interviewLoading = false;
+  interviewPendingIndex: number | null = null;
   async startInterview() {
+    // 🔥 Resetea estado
     this.chat = [];
     this.history = [];
     this.lastFeedback = '';
     this.lastScore = null;
     this.interviewActive = true;
+
+    // Inserta placeholder inicial
+    this.interviewLoading = true;
+    this.interviewPendingIndex = this.chat.length; // será 0
+    this.chat.push({
+      from: 'bot',
+      text: '⏳ Un momento, el reclutador está de camino…',
+    });
 
     try {
       const first = await firstValueFrom(
@@ -195,12 +206,30 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         })
       );
 
-      this.pushBot(first);
+      // Reemplaza el placeholder con la pregunta real
+      this.chat[this.interviewPendingIndex!] = {
+        from: 'bot',
+        text: first.question,
+      };
+      this.interviewPendingIndex = null;
+
+      // Guarda feedback (si hubiera) y ajusta currentQuestion
+      this.pushFeedback(first);
     } catch (err) {
       console.error('Error al iniciar entrevista:', err);
+      // Sustituye el placeholder por un mensaje de error
+      this.chat[this.interviewPendingIndex ?? this.chat.length - 1] = {
+        from: 'bot',
+        text: '⚠️ Error al iniciar la entrevista, inténtalo de nuevo.',
+      };
+      this.interviewPendingIndex = null;
       this.interviewActive = false;
+    } finally {
+      this.interviewLoading = false;
+      this.scrollChatToBottom();
     }
   }
+
   /* ========== propiedades ========== */
   isWaiting = false;
   pendingIndex: number | null = null; // dónde está el placeholder

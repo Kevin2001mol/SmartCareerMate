@@ -124,9 +124,17 @@
         mat-stroked-button
         color="primary"
         (click)="startInterview()"
-        [disabled]="interviewActive || !parsedCv || !offerText"
+        [disabled]="
+          interviewActive || !parsedCv || !offerText || interviewLoading
+        "
       >
-        <mat-icon>play_arrow</mat-icon> Iniciar entrevista
+        <mat-icon>play_arrow</mat-icon>
+        <ng-container *ngIf="!interviewLoading"
+          >Iniciar entrevista</ng-container
+        >
+        <ng-container *ngIf="interviewLoading"
+          >Preparando entrevista…</ng-container
+        >
       </button>
 
       <button
