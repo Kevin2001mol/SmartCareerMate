@@ -47,23 +47,31 @@
     </mat-card>
   </div>
 
-  <!-- 3. Botones de generación -->
   <mat-card appearance="outlined" class="actions">
+    <!-- Botón Generar CV -->
     <button
       mat-raised-button
       color="primary"
       (click)="generateCv()"
-      [disabled]="!cvName"
+      [disabled]="!cvName || generatingCv"
     >
-      <mat-icon>description</mat-icon> Generar CV adaptado
+      <mat-icon>description</mat-icon>
+      <ng-container *ngIf="!generatingCv">Generar CV adaptado</ng-container>
+      <ng-container *ngIf="generatingCv">Generando CV…</ng-container>
     </button>
+
+    <!-- Botón Generar carta -->
     <button
       mat-raised-button
       color="accent"
       (click)="generateLetter()"
-      [disabled]="!offerText"
+      [disabled]="!offerText || generatingLetter"
     >
-      <mat-icon>drafts</mat-icon> Generar carta de Presentación
+      <mat-icon>drafts</mat-icon>
+      <ng-container *ngIf="!generatingLetter"
+        >Generar carta de Presentación</ng-container
+      >
+      <ng-container *ngIf="generatingLetter">Generando carta…</ng-container>
     </button>
   </mat-card>
 

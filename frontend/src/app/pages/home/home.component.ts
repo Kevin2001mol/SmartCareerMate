@@ -53,7 +53,7 @@ interface ChatMsg {
     MatIconModule,
   ],
   templateUrl: './home.component.html',
-  styleUrls:   ['./home.component.scss'],
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -67,6 +67,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   uploadStatus = '';
   cvList: any[] = [];
   isLoading = false;
+  generatingCv = false;
+  generatingLetter = false;
 
   /* =============== Entrevista =============== */
   interviewActive = false;
@@ -130,7 +132,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   async generateCv() {
     if (!this.parsedCv || !this.offerText) return;
-    this.isLoading = true;
+    this.generatingCv = true;
+
     const payload: RewritePayload = {
       cvText: this.parsedCv,
       offerText: this.offerText,
@@ -138,19 +141,22 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       tone: this.tone,
       temperature: 0.2,
     };
+
     try {
       const res = await firstValueFrom(this.ai.rewrite(payload));
       this.generatedCvText = res.text;
     } catch (err) {
       console.error('Error AI rewrite:', err);
     } finally {
-      this.isLoading = false;
+      this.generatingCv = false;
     }
   }
 
+  /** Generar carta de presentación */
   async generateLetter() {
     if (!this.parsedCv || !this.offerText) return;
-    this.isLoading = true;
+    this.generatingLetter = true;
+
     const payload: RewritePayload = {
       cvText: this.parsedCv,
       offerText: this.offerText,
@@ -158,15 +164,17 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       tone: this.tone,
       temperature: 0.2,
     };
+
     try {
       const res = await firstValueFrom(this.ai.coverLetter(payload));
       this.generatedLetter = res.text;
     } catch (err) {
       console.error('Error AI cover-letter:', err);
     } finally {
-      this.isLoading = false;
+      this.generatingLetter = false;
     }
   }
+
   /* ========== Entrevista ========== */
   async startInterview() {
     this.chat = [];
