@@ -120,41 +120,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       const text = await firstValueFrom(this.cvService.upload(file, 1));
       this.parsedCv = text;
       this.uploadStatus = '✅ CV parseado exitosamente';
-
-      // Esperar un poco y luego cargar la lista de CVs
-      setTimeout(() => this.loadCvList(), 2000);
     } catch (err) {
       console.error('Error al parsear CV:', err);
       this.uploadStatus = '❌ Error al procesar el CV';
     } finally {
       this.isLoading = false;
-    }
-  }
-
-  /** Cargar lista de CVs del usuario */
-  async loadCvList() {
-    try {
-      this.cvList = await firstValueFrom(this.cvService.getCvsByUser(1));
-      console.log('CVs encontrados:', this.cvList);
-    } catch (err) {
-      console.error('Error al cargar CVs:', err);
-    }
-  }
-
-  /** Método para testear la conexión */
-  async testConnection() {
-    try {
-      const response = await fetch('/api/cv/1');
-      if (response.ok) {
-        console.log('✅ Conexión al backend OK');
-        this.uploadStatus = '✅ Backend conectado';
-      } else {
-        console.log('❌ Backend responde con error:', response.status);
-        this.uploadStatus = `❌ Backend error: ${response.status}`;
-      }
-    } catch (err) {
-      console.log('❌ No se puede conectar al backend:', err);
-      this.uploadStatus = '❌ Backend no disponible';
     }
   }
 

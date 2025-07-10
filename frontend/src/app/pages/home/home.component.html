@@ -12,48 +12,6 @@
     </p>
   </mat-card>
 
-  <!-- Sección de debugging -->
-  <mat-card appearance="outlined" class="debug-card">
-    <h2 class="card-title">
-      <mat-icon>bug_report</mat-icon> Estado del sistema
-    </h2>
-    <div class="debug-actions">
-      <button mat-raised-button (click)="testConnection()" color="accent">
-        <mat-icon>wifi</mat-icon> Test conexión backend
-      </button>
-      <button mat-raised-button (click)="loadCvList()" color="primary">
-        <mat-icon>refresh</mat-icon> Cargar lista de CVs
-      </button>
-      <p
-        *ngIf="uploadStatus"
-        [ngClass]="{
-          ok: uploadStatus.includes('✅'),
-          error: !uploadStatus.includes('✅')
-        }"
-      >
-        Estado: {{ uploadStatus }}
-      </p>
-      <div *ngIf="isLoading" class="loading">
-        <mat-icon class="animate-spin">refresh</mat-icon>
-        <span>Procesando...</span>
-      </div>
-    </div>
-  </mat-card>
-
-  <!-- Lista de CVs almacenados -->
-  <mat-card *ngIf="cvList.length > 0" appearance="outlined" class="stored-list">
-    <h3 class="card-title">
-      <mat-icon>list</mat-icon> CVs almacenados ({{ cvList.length }})
-    </h3>
-    <div class="cv-item" *ngFor="let cv of cvList">
-      <strong>{{ cv.originalName }}</strong>
-      <small
-        >(ID: {{ cv.id }}, subido: {{ cv.createdAt | date : "short" }})</small
-      >
-      <p class="cv-preview">{{ cv.rawText.substring(0, 100) }}…</p>
-    </div>
-  </mat-card>
-
   <!-- 2. Oferta + Ajustes -->
   <div class="offer-config">
     <mat-card appearance="outlined" class="offer-box">
