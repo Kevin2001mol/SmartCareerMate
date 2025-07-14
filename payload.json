@@ -1,6 +1,7 @@
 ﻿{
-  "cvJson": "foo",
-  "offerText": "bar",
-  "history": [],
-  "level": "principiante"
+  "cvText":    "Aquí tu CV parseado",
+  "offerText": "Aquí la descripción de la oferta",
+  "language":  "es",
+  "tone":      "formal",
+  "temperature": 0.2
 }

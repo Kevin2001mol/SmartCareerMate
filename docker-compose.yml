@@ -69,6 +69,15 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+  # ──────────────────────────── Frontend ───────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - gateway
+    ports:
+      - "4200:80"
 
   # ─────────────────────────── Gateway ─────────────────────────────
   gateway:
@@ -78,6 +87,8 @@ services:
       core-service: { condition: service_started }
       cv-parser:    { condition: service_healthy }
     ports: ["8080:8080"]
+  
+  
 
 volumes:
   pgdata:

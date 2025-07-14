@@ -1,0 +1,7 @@
+﻿{
+  "cvText":    "Este es un CV de prueba",
+  "offerText": "Esta es la oferta",
+  "language":  "es",
+  "tone":      "formal",
+  "temperature": 0.2
+}
