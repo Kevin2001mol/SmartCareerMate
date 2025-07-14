@@ -5,6 +5,10 @@ import {
   ElementRef,
   ViewChild,
   NgZone,
+  ChangeDetectorRef,
+  QueryList,
+  AfterViewChecked,
+  ViewChildren
 } from '@angular/core';
 
 import {
@@ -37,7 +41,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { take } from 'rxjs/operators';
 
 interface ChatMsg {
   from: 'user' | 'bot';
@@ -64,11 +67,16 @@ interface ChatMsg {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements AfterViewInit, OnDestroy {
+export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
   private destroy$ = new Subject<void>();
   @ViewChild('cvResult') cvResult?: ElementRef<HTMLElement>;
   @ViewChild('letterResult') letterResult?: ElementRef<HTMLElement>;
   @ViewChild('chatWindow') chatWindow?: ElementRef<HTMLElement>;
+  @ViewChildren('cvResult', { read: ElementRef })
+  cvResults!: QueryList<ElementRef<HTMLElement>>;
+
+  @ViewChildren('letterResult', { read: ElementRef })
+  letterResults!: QueryList<ElementRef<HTMLElement>>;
 
   /* =============== Estado general =============== */
   cvName = '';
@@ -81,6 +89,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   isLoading = false;
   generatingCv = false;
   generatingLetter = false;
+
+  private pendingScroll: 'cv' | 'letter' | null = null;
 
   /* =============== Entrevista =============== */
   interviewActive = false;
@@ -100,7 +110,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     private interview: InterviewService,
     private scroll: ScrollService,
     private vps: ViewportScroller,
-    private zone: NgZone
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit() {
@@ -146,6 +156,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   async generateCv() {
     if (!this.parsedCv || !this.offerText) return;
     this.generatingCv = true;
+    
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -158,12 +169,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.rewrite(payload));
       this.generatedCvText = res.text;
-      this.zone.onStable.pipe(take(1)).subscribe(() => {
-        this.cvResult?.nativeElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      });
+      this.pendingScroll = 'cv'; // marca qué hay que desplazar
     } catch (err) {
       console.error('Error AI rewrite:', err);
     } finally {
@@ -187,12 +193,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.coverLetter(payload));
       this.generatedLetter = res.text;
-      this.zone.onStable.pipe(take(1)).subscribe(() => {
-        this.letterResult?.nativeElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      });
+      this.pendingScroll = 'letter';
     } catch (err) {
       console.error('Error AI cover-letter:', err);
     } finally {
@@ -357,13 +358,21 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       }
     }, 0);
   }
-  /** Desplaza la ventana cuando Angular ha terminado de pintar */
-  private scrollResult(ref?: ElementRef<HTMLElement>) {
-    if (!ref) {
-      return;
-    } // aún no existe
-    this.zone.onStable.pipe(take(1)).subscribe(() => {
-      ref.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  /* ---------- AfterViewChecked ---------- */
+  ngAfterViewChecked() {
+    if (this.pendingScroll === 'cv' && this.cvResults.last) {
+      this.cvResults.last.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      this.pendingScroll = null;
+    }
+    if (this.pendingScroll === 'letter' && this.letterResults.last) {
+      this.letterResults.last.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      this.pendingScroll = null;
+    }
   }
 }
