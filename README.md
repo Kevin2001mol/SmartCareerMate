@@ -1,4 +1,4 @@
-# SmartCareerMate
+# SmartCareerMate (Finalizando desarrollo)
 ---
 **SmartCareerMate** es un asistente inteligente diseñado para facilitar procesos de selección y gestión del talento en el ámbito de los recursos humanos. Actualmente en desarrollo, este proyecto combina tecnologías modernas de desarrollo web con inteligencia artificial para ofrecer funcionalidades clave como:
 - 🔍 **Análisis inteligente de CVs**: extracción de información relevante y evaluación automatizada del perfil del candidato.
