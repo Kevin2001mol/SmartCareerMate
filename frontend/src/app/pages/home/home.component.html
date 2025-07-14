@@ -87,7 +87,7 @@
 
     <!-- 3-b. Resultados -->
     <ng-container *ngIf="generatedCvText || generatedLetter">
-      <mat-card
+      <mat-card #cvResult
         appearance="outlined"
         *ngIf="generatedCvText"
         class="p-4 space-y-2"
@@ -100,7 +100,7 @@
         }}</textarea>
       </mat-card>
 
-      <mat-card
+      <mat-card #letterResult
         appearance="outlined"
         *ngIf="generatedLetter"
         class="p-4 space-y-2"
@@ -120,15 +120,14 @@
   <mat-card
     id="interview-section"
     appearance="outlined"
-    class="interview-card flex flex-col lg:col-span-1"
+    class="interview-card flex flex-col lg:col-span-1 h-[calc(100vh-100px)] max-h-[calc(100vh-100px)]"
   >
-    <!-- Cabecera: título + selector nivel + botones -->
+    <!-- Cabecera: título + nivel + botones -->
     <div class="flex flex-wrap items-center gap-4">
       <h2 class="text-xl font-semibold flex items-center gap-2 m-0">
         <mat-icon>chat</mat-icon> Entrevista simulada
       </h2>
 
-      <!-- Selector de nivel -->
       <mat-form-field appearance="fill" class="w-40">
         <mat-label>Nivel</mat-label>
         <mat-select [(ngModel)]="level">
@@ -138,7 +137,6 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Botón iniciar -->
       <button
         mat-stroked-button
         color="primary"
@@ -148,13 +146,10 @@
         "
       >
         <mat-icon>play_arrow</mat-icon>
-        <ng-container *ngIf="!interviewLoading"
-          >Iniciar entrevista</ng-container
-        >
+        <ng-container *ngIf="!interviewLoading">Iniciar</ng-container>
         <ng-container *ngIf="interviewLoading">Preparando…</ng-container>
       </button>
 
-      <!-- Botón terminar -->
       <button
         mat-stroked-button
         color="warn"
@@ -164,10 +159,9 @@
         <mat-icon>stop</mat-icon> Terminar
       </button>
     </div>
-    <!-- /cabecera -->
 
-    <!-- Lista de mensajes -->
-    <div
+    <!-- Lista de mensajes con scroll interno -->
+    <div #chatWindow
       class="flex-1 border rounded my-4 p-2 space-y-2 bg-slate-50 overflow-y-auto"
     >
       <div
@@ -214,7 +208,7 @@
       <span *ngIf="lastScore !== null">
         – Puntuación: {{ lastScore | number : "1.0-2" }}
       </span>
-    </div> </mat-card
-  ><!-- /chat -->
+    </div>
+  </mat-card>
 </div>
 <!-- /grid -->

@@ -1,4 +1,12 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  NgZone,
+} from '@angular/core';
+
 import {
   ViewportScroller,
   NgIf,
@@ -29,6 +37,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { take } from 'rxjs/operators';
 
 interface ChatMsg {
   from: 'user' | 'bot';
@@ -57,6 +66,9 @@ interface ChatMsg {
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  @ViewChild('cvResult') cvResult?: ElementRef<HTMLElement>;
+  @ViewChild('letterResult') letterResult?: ElementRef<HTMLElement>;
+  @ViewChild('chatWindow') chatWindow?: ElementRef<HTMLElement>;
 
   /* =============== Estado general =============== */
   cvName = '';
@@ -87,7 +99,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     private ai: AiService,
     private interview: InterviewService,
     private scroll: ScrollService,
-    private vps: ViewportScroller
+    private vps: ViewportScroller,
+    private zone: NgZone
   ) {}
 
   ngAfterViewInit() {
@@ -133,6 +146,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   async generateCv() {
     if (!this.parsedCv || !this.offerText) return;
     this.generatingCv = true;
+    this.scrollWhenStable(this.cvResult!);
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -145,6 +159,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.rewrite(payload));
       this.generatedCvText = res.text;
+
+      /* desplázate a la tarjeta cuando exista en el DOM */
+      setTimeout(
+        () =>
+          this.cvResult?.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          }),
+        0
+      );
     } catch (err) {
       console.error('Error AI rewrite:', err);
     } finally {
@@ -156,6 +180,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   async generateLetter() {
     if (!this.parsedCv || !this.offerText) return;
     this.generatingLetter = true;
+    this.scrollWhenStable(this.letterResult!);
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -168,6 +193,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.coverLetter(payload));
       this.generatedLetter = res.text;
+
+      setTimeout(
+        () =>
+          this.letterResult?.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          }),
+        0
+      );
     } catch (err) {
       console.error('Error AI cover-letter:', err);
     } finally {
@@ -264,6 +298,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       this.chat[this.pendingIndex] = { from: 'bot', text: res.question };
       this.pendingIndex = null;
       this.pushFeedback(res);
+      this.scrollChatToBottom();
     } catch (err) {
       this.chat[this.pendingIndex ?? this.chat.length - 1] = {
         from: 'bot',
@@ -285,6 +320,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       });
     }
     this.currentQuestion = res.question;
+    this.scrollChatToBottom();
   }
 
   endInterview() {
@@ -319,11 +355,24 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     this.scrollChatToBottom();
   }
 
-  /** desplaza la ventana de chat al final */
+  /* ========== Chat – auto-scroll ========== */
+
   private scrollChatToBottom() {
+    /* espera al siguiente ciclo para que Angular pinte el último mensaje */
     setTimeout(() => {
-      const box = document.querySelector<HTMLElement>('.border.rounded.h-64');
-      box?.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+      const box = this.chatWindow?.nativeElement;
+      if (box) {
+        box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+      }
+    }, 0);
+  }
+  /** Desplaza la ventana cuando Angular ha terminado de pintar */
+  private scrollWhenStable(el?: ElementRef<HTMLElement>) {
+    if (!el) {
+      return;
+    }
+    this.zone.onStable.pipe(take(1)).subscribe(() => {
+      el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 }
