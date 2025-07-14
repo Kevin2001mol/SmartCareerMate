@@ -146,7 +146,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   async generateCv() {
     if (!this.parsedCv || !this.offerText) return;
     this.generatingCv = true;
-    this.scrollWhenStable(this.cvResult!);
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -159,16 +158,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.rewrite(payload));
       this.generatedCvText = res.text;
-
-      /* desplázate a la tarjeta cuando exista en el DOM */
-      setTimeout(
-        () =>
-          this.cvResult?.nativeElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          }),
-        0
-      );
+      this.zone.onStable.pipe(take(1)).subscribe(() => {
+        this.cvResult?.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      });
     } catch (err) {
       console.error('Error AI rewrite:', err);
     } finally {
@@ -180,7 +175,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   async generateLetter() {
     if (!this.parsedCv || !this.offerText) return;
     this.generatingLetter = true;
-    this.scrollWhenStable(this.letterResult!);
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -193,15 +187,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.coverLetter(payload));
       this.generatedLetter = res.text;
-
-      setTimeout(
-        () =>
-          this.letterResult?.nativeElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
-          }),
-        0
-      );
+      this.zone.onStable.pipe(take(1)).subscribe(() => {
+        this.letterResult?.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      });
     } catch (err) {
       console.error('Error AI cover-letter:', err);
     } finally {
@@ -367,12 +358,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     }, 0);
   }
   /** Desplaza la ventana cuando Angular ha terminado de pintar */
-  private scrollWhenStable(el?: ElementRef<HTMLElement>) {
-    if (!el) {
+  private scrollResult(ref?: ElementRef<HTMLElement>) {
+    if (!ref) {
       return;
-    }
+    } // aún no existe
     this.zone.onStable.pipe(take(1)).subscribe(() => {
-      el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      ref.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 }
