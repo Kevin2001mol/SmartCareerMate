@@ -1,4 +1,16 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  NgZone,
+  ChangeDetectorRef,
+  QueryList,
+  AfterViewChecked,
+  ViewChildren
+} from '@angular/core';
+
 import {
   ViewportScroller,
   NgIf,
@@ -55,8 +67,16 @@ interface ChatMsg {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements AfterViewInit, OnDestroy {
+export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
   private destroy$ = new Subject<void>();
+  @ViewChild('cvResult') cvResult?: ElementRef<HTMLElement>;
+  @ViewChild('letterResult') letterResult?: ElementRef<HTMLElement>;
+  @ViewChild('chatWindow') chatWindow?: ElementRef<HTMLElement>;
+  @ViewChildren('cvResult', { read: ElementRef })
+  cvResults!: QueryList<ElementRef<HTMLElement>>;
+
+  @ViewChildren('letterResult', { read: ElementRef })
+  letterResults!: QueryList<ElementRef<HTMLElement>>;
 
   /* =============== Estado general =============== */
   cvName = '';
@@ -69,6 +89,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   isLoading = false;
   generatingCv = false;
   generatingLetter = false;
+
+  private pendingScroll: 'cv' | 'letter' | null = null;
 
   /* =============== Entrevista =============== */
   interviewActive = false;
@@ -87,7 +109,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     private ai: AiService,
     private interview: InterviewService,
     private scroll: ScrollService,
-    private vps: ViewportScroller
+    private vps: ViewportScroller,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit() {
@@ -133,6 +156,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   async generateCv() {
     if (!this.parsedCv || !this.offerText) return;
     this.generatingCv = true;
+    
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -145,6 +169,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.rewrite(payload));
       this.generatedCvText = res.text;
+      this.pendingScroll = 'cv'; // marca qué hay que desplazar
     } catch (err) {
       console.error('Error AI rewrite:', err);
     } finally {
@@ -168,6 +193,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     try {
       const res = await firstValueFrom(this.ai.coverLetter(payload));
       this.generatedLetter = res.text;
+      this.pendingScroll = 'letter';
     } catch (err) {
       console.error('Error AI cover-letter:', err);
     } finally {
@@ -264,6 +290,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       this.chat[this.pendingIndex] = { from: 'bot', text: res.question };
       this.pendingIndex = null;
       this.pushFeedback(res);
+      this.scrollChatToBottom();
     } catch (err) {
       this.chat[this.pendingIndex ?? this.chat.length - 1] = {
         from: 'bot',
@@ -285,6 +312,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       });
     }
     this.currentQuestion = res.question;
+    this.scrollChatToBottom();
   }
 
   endInterview() {
@@ -319,11 +347,32 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     this.scrollChatToBottom();
   }
 
-  /** desplaza la ventana de chat al final */
+  /* ========== Chat – auto-scroll ========== */
+
   private scrollChatToBottom() {
+    /* espera al siguiente ciclo para que Angular pinte el último mensaje */
     setTimeout(() => {
-      const box = document.querySelector<HTMLElement>('.border.rounded.h-64');
-      box?.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
-    });
+      const box = this.chatWindow?.nativeElement;
+      if (box) {
+        box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+      }
+    }, 0);
+  }
+  /* ---------- AfterViewChecked ---------- */
+  ngAfterViewChecked() {
+    if (this.pendingScroll === 'cv' && this.cvResults.last) {
+      this.cvResults.last.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      this.pendingScroll = null;
+    }
+    if (this.pendingScroll === 'letter' && this.letterResults.last) {
+      this.letterResults.last.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      this.pendingScroll = null;
+    }
   }
 }
