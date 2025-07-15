@@ -4,8 +4,10 @@
   scroll-margin-top: 4rem;
 }
 
-/* Ejemplo de extracción de utilidades Tailwind */
 .upload-card {
+  @apply p-4;
+}
+.offer-card {
   @apply p-4;
 }
 .card-title {
@@ -50,10 +52,8 @@
   @apply w-full;
 }
 .actions {
-  @apply p-4 flex flex-wrap gap-4;
+  @apply p-4 flex flex-col gap-4 justify-center flex-grow py-6;
 }
 .interview-card {
   @apply p-4 space-y-4;
 }
-
-/* Aquí añade cualquier otro estilo específico que necesites */

@@ -1,9 +1,9 @@
 <!-- Grid principal -->
-<div class="container mx-auto max-w-7xl p-4 grid gap-6 lg:grid-cols-3">
-  <!-- 2-col → 3 (2+1) a partir de lg -->
-
-  <!-- COLUMNA IZQUIERDA (span-2) -->
-  <div class="space-y-6 lg:col-span-2">
+<div
+  class="mx-auto max-w-screen-2xl p-4 pb-8 grid gap-6 lg:grid-cols-[4fr_minmax(540px,2fr)]"
+>
+  <!-- COLUMNA IZQUIERDA  -->
+  <div class="lg:col-span-1 flex flex-col space-y-6 h-full">
     <!-- 1. Información de la oferta -->
     <mat-card appearance="outlined" class="offer-card">
       <h2 class="card-title">
@@ -14,7 +14,7 @@
         rows="10"
         [(ngModel)]="offerText"
         placeholder="Pega aquí la descripción de la oferta…"
-        class="w-full"
+        class="w-full mt-2"
       ></textarea>
     </mat-card>
 
@@ -61,7 +61,10 @@
     </mat-card>
 
     <!-- 3. Botones de acción -->
-    <mat-card appearance="outlined" class="actions flex flex-wrap gap-4">
+    <mat-card
+      appearance="outlined"
+      class="actions flex flex-wrap gap-4 mt-auto flex-grow"
+    >
       <button
         mat-raised-button
         color="primary"
@@ -70,7 +73,7 @@
       >
         <mat-icon>description</mat-icon>
         <span *ngIf="!generatingCv">Generar CV adaptado</span>
-        <span *ngIf="generatingCv">Generando CV…</span>
+        <span *ngIf="generatingCv">Generando CV…</span>
       </button>
 
       <button
@@ -85,9 +88,10 @@
       </button>
     </mat-card>
 
-    <!-- 3-b. Resultados -->
-    <ng-container *ngIf="generatedCvText || generatedLetter">
-      <mat-card #cvResult
+    <!-- 3‑b. Resultados (solo cuando existan) -->
+    <ng-container *ngIf="generatedCvText || generatedLetter" class="space-y-4">
+      <mat-card
+        #cvResult
         appearance="outlined"
         *ngIf="generatedCvText"
         class="p-4 space-y-2"
@@ -100,7 +104,8 @@
         }}</textarea>
       </mat-card>
 
-      <mat-card #letterResult
+      <mat-card
+        #letterResult
         appearance="outlined"
         *ngIf="generatedLetter"
         class="p-4 space-y-2"
@@ -114,21 +119,23 @@
       </mat-card>
     </ng-container>
   </div>
-  <!-- /col-izq -->
 
   <!-- COLUMNA DERECHA (CHAT) -->
   <mat-card
     id="interview-section"
     appearance="outlined"
-    class="interview-card flex flex-col lg:col-span-1 h-[calc(100vh-100px)] max-h-[calc(100vh-100px)]"
+    class="interview-card flex flex-col lg:min-w-[360px] h-[calc(100vh-100px-32px)] max-h-[calc(100vh-100px-32px)]"
   >
-    <!-- Cabecera: título + nivel + botones -->
-    <div class="flex flex-wrap items-center gap-4">
-      <h2 class="text-xl font-semibold flex items-center gap-2 m-0">
-        <mat-icon>chat</mat-icon> Entrevista simulada
-      </h2>
+    <!-- ─────────────── TÍTULO ─────────────── -->
+    <h2 class="card-title">
+      <mat-icon>chat</mat-icon>
+      Entrevista simulada
+    </h2>
 
-      <mat-form-field appearance="fill" class="w-40">
+    <!-- ────────────── CONTROLES ───────────── -->
+    <div class="flex flex-wrap lg:flex-nowrap items-center gap-4">
+      <!-- selector nivel -->
+      <mat-form-field appearance="fill" class="min-w-[160px] flex-shrink-0">
         <mat-label>Nivel</mat-label>
         <mat-select [(ngModel)]="level">
           <mat-option value="principiante">Principiante</mat-option>
@@ -137,6 +144,7 @@
         </mat-select>
       </mat-form-field>
 
+      <!-- botón iniciar -->
       <button
         mat-stroked-button
         color="primary"
@@ -150,18 +158,21 @@
         <ng-container *ngIf="interviewLoading">Preparando…</ng-container>
       </button>
 
+      <!-- botón terminar -->
       <button
         mat-stroked-button
         color="warn"
         (click)="endInterview()"
         [disabled]="!interviewActive"
       >
-        <mat-icon>stop</mat-icon> Terminar
+        <mat-icon>stop</mat-icon>
+        Terminar
       </button>
     </div>
 
-    <!-- Lista de mensajes con scroll interno -->
-    <div #chatWindow
+    <!-- ─────────── LISTA MENSAJES ─────────── -->
+    <div
+      #chatWindow
       class="flex-1 border rounded my-4 p-2 space-y-2 bg-slate-50 overflow-y-auto"
     >
       <div
