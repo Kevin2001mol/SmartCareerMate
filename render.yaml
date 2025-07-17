@@ -2,14 +2,14 @@ databases:
   - name: cvflow-db
     databaseName: cvflow
     user: cvflow
-    plan: free          # ⇧ si necesitas más RAM pásate al plan ‘starter’ ► 512 MB
+    plan: free # ⇧ si necesitas más RAM pásate al plan ‘starter’ ► 512 MB
 
 services:
   # ────────────────────── FRONTEND ──────────────────────
   - name: frontend
     type: web
     env: docker
-    rootDir: frontend           # subcarpeta donde está el Dockerfile
+    rootDir: frontend # subcarpeta donde está el Dockerfile
     dockerfilePath: frontend/Dockerfile
     autoDeploy: true
     plan: free
@@ -17,7 +17,7 @@ services:
       paths: ["frontend/**"]
     # puerto que tu Dockerfile hace EXPOSE; cámbialo si tu contenedor usa otro:
     envVars:
-      - key: VITE_API_URL       # ejemplo; adapta al nombre real de tu var
+      - key: VITE_API_URL # ejemplo; adapta al nombre real de tu var
         value: "https://gateway-{{ env.RAILWAY_SERVICE_ID }}.onrender.com"
 
   # ─────────────────────── GATEWAY ──────────────────────
@@ -44,7 +44,7 @@ services:
           name: cvflow-db
           property: password
       - key: RABBITMQ_HOST
-        value: rabbitmq        # nombre del servicio privado
+        value: rabbitmq # nombre del servicio privado
 
   # ──────────────────── MICRO‑SERVICIOS ───────────────────
   - name: core-service
@@ -86,15 +86,13 @@ services:
       - key: RABBITMQ_HOST
         value: rabbitmq
 
-  # ─────────────────────── RabbitMQ ───────────────────────
+    # ─────────────────────── RabbitMQ ───────────────────────
   - name: rabbitmq
-    type: pserv
-    env: docker
-    image: rabbitmq:3-management     # usa la imagen oficial
-    autoDeploy: false
-    # Render necesita saber qué puerto espera para health‑check (5672 ≈ AMQP):
-    healthCheckPath: /
-    ports:
-      - 5672
-      - 15672                      # panel de gestión (solo interno)
-    plan: free
+    type: pserv # servicio privado
+    image: # forma correcta → objeto con name + tag
+      name: rabbitmq
+      tag: 3-management
+    autoDeploy: false # solo se reconstruye cuando tú hagas trigger
+
+    # Opcional: health‑check por comando (pserv no acepta healthCheckPath)
+    healthCheckCommand: rabbitmq-diagnostics check_port_connectivity
