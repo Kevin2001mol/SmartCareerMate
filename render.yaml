@@ -7,7 +7,7 @@ databases:
 services:
   # ──────────────── Infra privada ────────────────
   - name: rabbitmq
-    type: private
+    type: private_service
     runtime: image
     image: rabbitmq:3-management
     envVars: []              # no necesita nada
@@ -31,14 +31,14 @@ services:
       sizeGB: 1
 
   - name: mailhog
-    type: private
+    type: private_service
     runtime: image
     image: mailhog/mailhog:latest
     ports: 1025                 # (la UI 8025 quedaría interna)
 
   # ──────────────── Ollama/IA ────────────────
   - name: ollama
-    type: private
+    type: private_service
     runtime: docker
     dockerfilePath: ai-ollama.Dockerfile
     autoDeploy: false
@@ -46,7 +46,7 @@ services:
 
   # ──────────────── Back‑end Spring ────────────────
   - name: core-service
-    type: private
+    type: private_service
     runtime: docker
     dockerfilePath: core-service/Dockerfile
     envVars:
@@ -65,7 +65,7 @@ services:
     ports: 8082
 
   - name: ai-service
-    type: private
+    type: private_service
     runtime: docker
     dockerfilePath: ai-service/Dockerfile
     envVars:
@@ -78,7 +78,7 @@ services:
       - ollama
 
   - name: cv-parser
-    type: private
+    type: private_service
     runtime: docker
     dockerfilePath: cv-parser/Dockerfile
     healthCheckPath: /actuator/health
