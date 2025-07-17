@@ -2,7 +2,7 @@ databases:
   - name: cvflow-db
     databaseName: cvflow
     user: cvflow
-    plan: free         # ⇧ súbelo a “starter” si necesitas +RAM
+    plan: free # ⇧ súbelo a “starter” si necesitas +RAM
 
 services:
   # ────────────────────── FRONTEND ──────────────────────
@@ -97,8 +97,9 @@ services:
 
   # ─────────────────────── RabbitMQ ───────────────────────
   - name: rabbitmq
-    type: pserv          # servicio privado
+    type: pserv
+    runtime: image
     image:
       url: docker.io/library/rabbitmq:3-management
-    autoDeploy: false    # solo se reconstruirá cuando hagas trigger
+    autoDeploy: false
     plan: free
