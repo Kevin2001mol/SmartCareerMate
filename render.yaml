@@ -1,0 +1,116 @@
+databases:
+  - name: cvflow-db
+    databaseName: cvflow
+    user: cvflow
+    plan: free   # cámbialo si necesitas más RAM
+
+services:
+  # ──────────────── Infra privada ────────────────
+  - name: rabbitmq
+    type: private
+    runtime: image
+    image: rabbitmq:3-management
+    envVars: []              # no necesita nada
+    ports: 5672
+    healthCheckPath: /       # Render exige uno; Rabbit devuelve “OK” en /html
+
+  - name: keycloak
+    type: web                # si vas a exponer login
+    runtime: image
+    image: quay.io/keycloak/keycloak:23.0
+    startCommand: start-dev
+    envVars:
+      - key: KEYCLOAK_ADMIN           # ⇢ fija valores en el panel
+        value: admin
+      - key: KEYCLOAK_ADMIN_PASSWORD
+        value: admin
+    ports: 8080
+    disk:
+      name: kc-data
+      mountPath: /opt/keycloak/data
+      sizeGB: 1
+
+  - name: mailhog
+    type: private
+    runtime: image
+    image: mailhog/mailhog:latest
+    ports: 1025                 # (la UI 8025 quedaría interna)
+
+  # ──────────────── Ollama/IA ────────────────
+  - name: ollama
+    type: private
+    runtime: docker
+    dockerfilePath: ai-ollama.Dockerfile
+    autoDeploy: false
+    ports: 11434
+
+  # ──────────────── Back‑end Spring ────────────────
+  - name: core-service
+    type: private
+    runtime: docker
+    dockerfilePath: core-service/Dockerfile
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: cvflow-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: cvflow-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: cvflow-db
+          property: password
+    ports: 8082
+
+  - name: ai-service
+    type: private
+    runtime: docker
+    dockerfilePath: ai-service/Dockerfile
+    envVars:
+      - key: SPRING_AI_OLLAMA_URL
+        value: http://ollama:11434
+      - key: SPRING_AI_OLLAMA_MODEL
+        value: llama3
+    ports: 8083
+    dependsOn:
+      - ollama
+
+  - name: cv-parser
+    type: private
+    runtime: docker
+    dockerfilePath: cv-parser/Dockerfile
+    healthCheckPath: /actuator/health
+    ports: 8085
+
+  # ──────────────── Gateway API ────────────────
+  - name: gateway
+    type: web
+    runtime: docker
+    dockerfilePath: gateway/Dockerfile
+    ports: 8080
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+    dependsOn:
+      - core-service
+      - ai-service
+      - cv-parser
+
+  # ──────────────── Angular Front ────────────────
+  - name: frontend
+    type: web
+    runtime: docker
+    dockerfilePath: frontend/Dockerfile
+    ports: 80
+    buildCommand: |
+      # si tu Dockerfile ya hace ng build, borra esta línea
+      echo "handled in Dockerfile"
+    staticPublishPath: /usr/share/nginx/html
+    dependsOn:
+      - gateway
+    headers:
+      - source: /*
+        headers:
+          - X-Frame-Options: DENY
