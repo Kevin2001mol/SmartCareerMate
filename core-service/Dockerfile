@@ -1,9 +1,18 @@
-# Dockerfile para core-service (Spring Boot + Maven)
-FROM eclipse-temurin:21-jdk AS build
+# ------------ Fase de construcción ------------
+FROM maven:3.9.8-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY . .
-RUN ./mvnw clean package -DskipTests
 
+# 1) copiar sólo descriptor para cachear deps
+COPY pom.xml ./
+COPY mvnw ./
+COPY .mvn ./.mvn
+RUN chmod +x mvnw && ./mvnw -q dependency:go-offline
+
+# 2) copiar el resto del código y compilar
+COPY src ./src
+RUN ./mvnw -q clean package -DskipTests
+
+# ------------ Imagen runtime ------------
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
