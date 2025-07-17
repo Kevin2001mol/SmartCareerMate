@@ -86,9 +86,12 @@ services:
       - key: RABBITMQ_HOST
         value: rabbitmq
 
-  # ─────────────────────── RabbitMQ ───────────────────────
-  - name: rabbitmq
-    type: pserv # servicio privado
-    image: docker.io/library/rabbitmq:3-management
-    autoDeploy: false # solo se reconstruirá cuando hagas trigger
-    plan: free
+# ─────────────────────── RabbitMQ ───────────────────────
+- name: rabbitmq
+  type: pserv          # servicio privado
+  image:
+    url: docker.io/library/rabbitmq:3-management
+  autoDeploy: false    # solo se reconstruirá cuando hagas trigger
+  plan: free
+
+
