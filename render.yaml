@@ -100,6 +100,5 @@ services:
     type: pserv          # servicio privado
     image:
       url: docker.io/library/rabbitmq:3-management
-    internalPort: 5672   # puerto AMQP interno
     autoDeploy: false    # solo se reconstruirá cuando hagas trigger
     plan: free
