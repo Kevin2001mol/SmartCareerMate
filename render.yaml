@@ -2,52 +2,55 @@ databases:
   - name: cvflow-db
     databaseName: cvflow
     user: cvflow
-    plan: free   # cámbialo si necesitas más RAM
+    plan: free          # ⇧ si necesitas más RAM pásate al plan ‘starter’ ► 512 MB
 
 services:
-  # ──────────────── Infra privada ────────────────
-  - name: rabbitmq
-    type: private_service
-    runtime: image
-    image: rabbitmq:3-management
-    envVars: []              # no necesita nada
-    ports: 5672
-    healthCheckPath: /       # Render exige uno; Rabbit devuelve “OK” en /html
-
-  - name: keycloak
-    type: web                # si vas a exponer login
-    runtime: image
-    image: quay.io/keycloak/keycloak:23.0
-    startCommand: start-dev
+  # ────────────────────── FRONTEND ──────────────────────
+  - name: frontend
+    type: web
+    env: docker
+    rootDir: frontend           # subcarpeta donde está el Dockerfile
+    dockerfilePath: frontend/Dockerfile
+    autoDeploy: true
+    plan: free
+    buildFilter:
+      paths: ["frontend/**"]
+    # puerto que tu Dockerfile hace EXPOSE; cámbialo si tu contenedor usa otro:
     envVars:
-      - key: KEYCLOAK_ADMIN           # ⇢ fija valores en el panel
-        value: admin
-      - key: KEYCLOAK_ADMIN_PASSWORD
-        value: admin
-    ports: 8080
-    disk:
-      name: kc-data
-      mountPath: /opt/keycloak/data
-      sizeGB: 1
+      - key: VITE_API_URL       # ejemplo; adapta al nombre real de tu var
+        value: "https://gateway-{{ env.RAILWAY_SERVICE_ID }}.onrender.com"
 
-  - name: mailhog
-    type: private_service
-    runtime: image
-    image: mailhog/mailhog:latest
-    ports: 1025                 # (la UI 8025 quedaría interna)
+  # ─────────────────────── GATEWAY ──────────────────────
+  - name: gateway
+    type: web
+    env: docker
+    rootDir: gateway
+    dockerfilePath: gateway/Dockerfile
+    plan: free
+    buildFilter:
+      paths: ["gateway/**"]
+    # Render autodescubre el puerto expuesto en el Dockerfile
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: cvflow-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: cvflow-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: cvflow-db
+          property: password
+      - key: RABBITMQ_HOST
+        value: rabbitmq        # nombre del servicio privado
 
-  # ──────────────── Ollama/IA ────────────────
-  - name: ollama
-    type: private_service
-    runtime: docker
-    dockerfilePath: ai-ollama.Dockerfile
-    autoDeploy: false
-    ports: 11434
-
-  # ──────────────── Back‑end Spring ────────────────
+  # ──────────────────── MICRO‑SERVICIOS ───────────────────
   - name: core-service
-    type: private_service
-    runtime: docker
+    type: pserv
+    env: docker
+    rootDir: core-service
     dockerfilePath: core-service/Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
@@ -62,55 +65,36 @@ services:
         fromDatabase:
           name: cvflow-db
           property: password
-    ports: 8082
+      - key: RABBITMQ_HOST
+        value: rabbitmq
 
   - name: ai-service
-    type: private_service
-    runtime: docker
+    type: pserv
+    env: docker
+    rootDir: ai-service
     dockerfilePath: ai-service/Dockerfile
     envVars:
-      - key: SPRING_AI_OLLAMA_URL
-        value: http://ollama:11434
-      - key: SPRING_AI_OLLAMA_MODEL
-        value: llama3
-    ports: 8083
-    dependsOn:
-      - ollama
+      - key: RABBITMQ_HOST
+        value: rabbitmq
 
   - name: cv-parser
-    type: private_service
-    runtime: docker
+    type: pserv
+    env: docker
+    rootDir: cv-parser
     dockerfilePath: cv-parser/Dockerfile
-    healthCheckPath: /actuator/health
-    ports: 8085
-
-  # ──────────────── Gateway API ────────────────
-  - name: gateway
-    type: web
-    runtime: docker
-    dockerfilePath: gateway/Dockerfile
-    ports: 8080
     envVars:
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod
-    dependsOn:
-      - core-service
-      - ai-service
-      - cv-parser
+      - key: RABBITMQ_HOST
+        value: rabbitmq
 
-  # ──────────────── Angular Front ────────────────
-  - name: frontend
-    type: web
-    runtime: docker
-    dockerfilePath: frontend/Dockerfile
-    ports: 80
-    buildCommand: |
-      # si tu Dockerfile ya hace ng build, borra esta línea
-      echo "handled in Dockerfile"
-    staticPublishPath: /usr/share/nginx/html
-    dependsOn:
-      - gateway
-    headers:
-      - source: /*
-        headers:
-          - X-Frame-Options: DENY
+  # ─────────────────────── RabbitMQ ───────────────────────
+  - name: rabbitmq
+    type: pserv
+    env: docker
+    image: rabbitmq:3-management     # usa la imagen oficial
+    autoDeploy: false
+    # Render necesita saber qué puerto espera para health‑check (5672 ≈ AMQP):
+    healthCheckPath: /
+    ports:
+      - 5672
+      - 15672                      # panel de gestión (solo interno)
+    plan: free
