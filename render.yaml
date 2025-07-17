@@ -86,13 +86,11 @@ services:
       - key: RABBITMQ_HOST
         value: rabbitmq
 
-    # ─────────────────────── RabbitMQ ───────────────────────
+      # ─────────────────────── RabbitMQ ───────────────────────
   - name: rabbitmq
     type: pserv # servicio privado
-    image: # forma correcta → objeto con name + tag
-      name: rabbitmq
-      tag: 3-management
-    autoDeploy: false # solo se reconstruye cuando tú hagas trigger
-
-    # Opcional: health‑check por comando (pserv no acepta healthCheckPath)
-    healthCheckCommand: rabbitmq-diagnostics check_port_connectivity
+    image:
+      url: docker.io/library/rabbitmq:3-management
+    internalPort: 5672 # puerto AMQP que exponen los demás servicios
+    autoDeploy: false
+    plan: free
