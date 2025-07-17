@@ -24,7 +24,7 @@ services:
     type: web
     env: docker
     rootDir: gateway
-    dockerfilePath: gateway/Dockerfile
+    dockerfilePath: Dockerfile
     plan: free
     buildFilter:
       paths: ["gateway/**"]
@@ -75,7 +75,7 @@ services:
     type: pserv
     env: docker
     rootDir: ai-service
-    dockerfilePath: ai-service/Dockerfile
+    dockerfilePath: Dockerfile
     plan: free
     envVars:
       - key: RABBITMQ_HOST
@@ -87,7 +87,7 @@ services:
     type: pserv
     env: docker
     rootDir: cv-parser
-    dockerfilePath: cv-parser/Dockerfile
+    dockerfilePath: Dockerfile
     plan: free
     envVars:
       - key: RABBITMQ_HOST
