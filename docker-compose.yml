@@ -14,6 +14,9 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports: ["5672:5672", "15672:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: cvflow
+      RABBITMQ_DEFAULT_PASS: cvflow
 
   # ─────────────────────────── Seguridad ───────────────────────────
   keycloak:
@@ -36,32 +39,44 @@ services:
   # ─────────────────────────── IA / backend ─────────────────────────
   ollama:
     build:
-      context: .               # raíz del repo
+      context: . # raíz del repo
       dockerfile: ai-ollama.Dockerfile
     ports:
       - "11434:11434"
 
   core-service:
     build: { context: ./core-service }
-    depends_on: [postgres]
+    depends_on: [postgres, rabbitmq]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cvflow
       SPRING_DATASOURCE_USERNAME: cvflow
       SPRING_DATASOURCE_PASSWORD: cvflow
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: cvflow
+      SPRING_RABBITMQ_PASSWORD: cvflow
     ports: ["8082:8082"]
 
   ai-service:
     build: { context: ./ai-service }
     depends_on:
       - ollama
+      - rabbitmq
     environment:
       SPRING_AI_OLLAMA_URL: http://ollama:11434
       SPRING_AI_OLLAMA_MODEL: llama3
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: cvflow
+      SPRING_RABBITMQ_PASSWORD: cvflow
     ports: ["8084:8083"]
 
   # ────────────────────────── CV-parser ────────────────────────────
   cv-parser:
     build: { context: ./cv-parser }
+    depends_on: [rabbitmq]
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: cvflow
+      SPRING_RABBITMQ_PASSWORD: cvflow
     ports: ["8085:8085"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
@@ -82,12 +97,14 @@ services:
   gateway:
     build: { context: ./gateway }
     depends_on:
-      ai-service:   { condition: service_started }
+      ai-service: { condition: service_started }
       core-service: { condition: service_started }
-      cv-parser:    { condition: service_healthy }
+      cv-parser: { condition: service_healthy }
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: cvflow
+      SPRING_RABBITMQ_PASSWORD: cvflow
     ports: ["8080:8080"]
-  
-  
 
 volumes:
   pgdata:
