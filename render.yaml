@@ -2,22 +2,21 @@ databases:
   - name: cvflow-db
     databaseName: cvflow
     user: cvflow
-    plan: free # ⇧ si necesitas más RAM pásate al plan ‘starter’ ► 512 MB
+    plan: free         # ⇧ súbelo a “starter” si necesitas +RAM
 
 services:
   # ────────────────────── FRONTEND ──────────────────────
   - name: frontend
     type: web
     env: docker
-    rootDir: frontend # subcarpeta donde está el Dockerfile
+    rootDir: frontend
     dockerfilePath: frontend/Dockerfile
-    autoDeploy: true
     plan: free
+    autoDeploy: true
     buildFilter:
       paths: ["frontend/**"]
-    # puerto que tu Dockerfile hace EXPOSE; cámbialo si tu contenedor usa otro:
     envVars:
-      - key: VITE_API_URL # ejemplo; adapta al nombre real de tu var
+      - key: VITE_API_URL
         value: "https://gateway-{{ env.RAILWAY_SERVICE_ID }}.onrender.com"
 
   # ─────────────────────── GATEWAY ──────────────────────
@@ -29,7 +28,6 @@ services:
     plan: free
     buildFilter:
       paths: ["gateway/**"]
-    # Render autodescubre el puerto expuesto en el Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
@@ -44,7 +42,9 @@ services:
           name: cvflow-db
           property: password
       - key: RABBITMQ_HOST
-        value: rabbitmq # nombre del servicio privado
+        value: rabbitmq
+      - key: RABBITMQ_PORT
+        value: "5672"
 
   # ──────────────────── MICRO‑SERVICIOS ───────────────────
   - name: core-service
@@ -52,6 +52,7 @@ services:
     env: docker
     rootDir: core-service
     dockerfilePath: core-service/Dockerfile
+    plan: free
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
@@ -67,29 +68,38 @@ services:
           property: password
       - key: RABBITMQ_HOST
         value: rabbitmq
+      - key: RABBITMQ_PORT
+        value: "5672"
 
   - name: ai-service
     type: pserv
     env: docker
     rootDir: ai-service
     dockerfilePath: ai-service/Dockerfile
+    plan: free
     envVars:
       - key: RABBITMQ_HOST
         value: rabbitmq
+      - key: RABBITMQ_PORT
+        value: "5672"
 
   - name: cv-parser
     type: pserv
     env: docker
     rootDir: cv-parser
     dockerfilePath: cv-parser/Dockerfile
+    plan: free
     envVars:
       - key: RABBITMQ_HOST
         value: rabbitmq
+      - key: RABBITMQ_PORT
+        value: "5672"
 
-    # ─────────────────────── RabbitMQ ───────────────────────
+  # ─────────────────────── RabbitMQ ───────────────────────
   - name: rabbitmq
-    type: pserv # servicio privado
+    type: pserv          # servicio privado
     image:
       url: docker.io/library/rabbitmq:3-management
-    autoDeploy: false # solo se reconstruirá cuando hagas trigger
+    internalPort: 5672   # puerto AMQP interno
+    autoDeploy: false    # solo se reconstruirá cuando hagas trigger
     plan: free
