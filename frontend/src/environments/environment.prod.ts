@@ -1,13 +1,9 @@
 export const environment = {
   production: true,
-
-  /** host público del gateway  */
-  apiUrl: 'https://smartcareermate.kevinhub.dev',
-
-  /** host público de Keycloak  */
-  keycloakUrl: 'https://keycloak.smartcareermate.kevinhub.dev/auth',
-
-  /** Realm y client que creaste en KC  */
-  realm: 'SmartCareerMate',
-  clientId: 'smart-career-frontend',
+  keycloak: {
+    url: 'https://keycloak.smartcareermate.kevinhub.dev/auth',
+    realm: 'SmartCareerMate',
+    clientId: 'smart-career-frontend',
+  },
+  apiUrl: 'https://smartcareermate.kevinhub.dev',   // tu dominio público
 };
