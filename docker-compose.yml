@@ -19,25 +19,25 @@ services:
       RABBITMQ_DEFAULT_PASS: cvflow
 
     # ─────────────────────────── Seguridad ───────────────────────────
-    keycloak:
-      image: quay.io/keycloak/keycloak:23.0
-      command: start-dev
-      environment:
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    command: start-dev
+    environment:
         # credenciales de administración
-        KEYCLOAK_ADMIN: admin
-        KEYCLOAK_ADMIN_PASSWORD: admin
-        KEYCLOAK_ADMIN_EMAIL: admin@dummy.local
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN_EMAIL: admin@dummy.local
 
         # --------  URL pública  -----------
-        KC_HOSTNAME: keycloak.smartcareermate.kevinhub.dev
-        KC_HTTP_RELATIVE_PATH: /auth
-        KC_PROXY: edge
-        KC_HOSTNAME_STRICT: "false"
-        KC_HOSTNAME_STRICT_HTTPS: "true"
-      ports:
-        - "8180:8080"
-      volumes:
-        - keycloak_data:/opt/keycloak/data
+      KC_HOSTNAME: keycloak.smartcareermate.kevinhub.dev
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+    ports:
+      - "8180:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
 
   mailhog:
     image: mailhog/mailhog:latest
