@@ -26,6 +26,9 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KEYCLOAK_ADMIN_EMAIL: admin@dummy.local
+      KC_HOSTNAME: keycloak.smartcareermate.kevinhub.dev
+      KC_PROXY: edge
+      KC_HTTP_RELATIVE_PATH: /auth
     ports: ["8180:8080"]
     volumes:
       - keycloak_data:/opt/keycloak/data
