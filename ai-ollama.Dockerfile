@@ -1,23 +1,21 @@
-# ai-ollama.Dockerfile  —  crea llama3:8b‑q4_0 (~2,9 GB RAM)
-
+# ai‑ollama.Dockerfile ─ cuantiza llama3:8b a Q4_0
 FROM ollama/ollama:latest
 
-# 0) utilidades mínimas
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
 
-# 1) lanza el daemon en 2º plano
-# 2) espera (máx 30 s) a que responda /api/tags
-# 3) genera el modelo cuantizado Q4_0
-# 4) apaga el daemon
 RUN set -eux; \
+    # 1) daemon en segundo plano
     ollama serve > /tmp/ollama.log 2>&1 & pid="$!"; \
+    # 2) espera a que abra el puerto (máx 30 s)
     for i in $(seq 1 30); do \
         curl -sf http://localhost:11434/api/tags && break; \
         sleep 1; \
     done; \
-    printf 'FROM llama3:8b\nPARAMETER quant Q4_0\n' > /tmp/Modelfile; \
+    # 3) Modelfile con QUANTIZE
+    printf 'FROM llama3:8b\nQUANTIZE Q4_0\n' > /tmp/Modelfile; \
     ollama create llama3:8b-q4_0 -f /tmp/Modelfile; \
+    # 4) apaga daemon
     kill "$pid"; \
     wait "$pid" || true
