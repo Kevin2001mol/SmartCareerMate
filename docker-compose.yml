@@ -52,6 +52,8 @@ services:
       dockerfile: ai-ollama.Dockerfile
     ports:
       - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama 
 
   core-service:
     build: { context: ./core-service }
@@ -118,3 +120,4 @@ services:
 volumes:
   pgdata:
   keycloak_data:
+  ollama_data: {}
