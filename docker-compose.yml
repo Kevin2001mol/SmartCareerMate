@@ -48,7 +48,7 @@ services:
   # ─────────────────────────── IA / backend ─────────────────────────
   ollama:
     build:
-      context: . # raíz del repo
+      context: .
       dockerfile: ai-ollama.Dockerfile
     ports:
       - "11434:11434"
@@ -72,7 +72,7 @@ services:
       - rabbitmq
     environment:
       SPRING_AI_OLLAMA_URL: http://ollama:11434
-      SPRING_AI_OLLAMA_MODEL: llama3:8b-q4_0
+      SPRING_AI_OLLAMA_MODEL: llama3:8b-text-q3_K_S
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: cvflow
       SPRING_RABBITMQ_PASSWORD: cvflow
