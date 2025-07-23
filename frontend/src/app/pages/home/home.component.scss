@@ -38,12 +38,7 @@
 
 /* Grid principal */
 .main-grid {
-  display: grid;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  grid-template-columns: 1fr;
-  min-height: calc(100vh - 128px);
+  @apply bg-gradient-to-br from-[#7764c2] to-[#7c4bb7] min-h-screen;
 }
 
 @media (min-width: 1024px) {
@@ -94,18 +89,10 @@
 
 /* Estilos específicos para las tarjetas */
 .offer-card,
-.upload-card {
-  flex: 1;             // que se repartan el espacio a partes iguales
-  display: flex;
-  flex-direction: column;
-}
-
-.interview-card {
-  @apply p-6;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 160px);
-  max-height: calc(100vh - 160px);
+.upload-card,
+.interview-card,
+.debug-card {
+  @apply bg-white rounded-2xl shadow-xl;
 }
 
 .actions {
