@@ -1,225 +1,199 @@
-<!-- Grid principal -->
-<div
-  class="mx-auto max-w-screen-2xl p-4 pb-8 grid gap-6 lg:grid-cols-[4fr_minmax(540px,2fr)]"
->
-  <!-- COLUMNA IZQUIERDA  -->
-  <div class="lg:col-span-1 flex flex-col space-y-6 h-full">
-    <!-- 1. Información de la oferta -->
-    <mat-card appearance="outlined" class="offer-card">
-      <h2 class="card-title">
-        <mat-icon>work</mat-icon> Información de la oferta
-      </h2>
-      <textarea
-        matInput
-        rows="10"
-        [(ngModel)]="offerText"
-        placeholder="Pega aquí la descripción de la oferta…"
-        class="w-full mt-2"
-      ></textarea>
-    </mat-card>
-
-    <!-- 2. Cargar CV + idioma/tono -->
-    <mat-card appearance="outlined" class="upload-card space-y-4">
-      <h2 class="card-title"><mat-icon>upload</mat-icon> Cargar CV</h2>
-
-      <!-- Zona arrastrar/soltar -->
-      <label
-        class="upload-dropzone flex flex-col items-center justify-center border-2 border-dashed rounded-md p-6 cursor-pointer text-center hover:bg-slate-50"
-      >
-        <input type="file" accept=".pdf" hidden (change)="onCv($event)" />
-        <mat-icon class="upload-icon text-4xl mb-2">cloud_upload</mat-icon>
-        <span>Arrastra el PDF o haz clic para subir</span>
-      </label>
-
-      <p
-        *ngIf="cvName"
-        class="upload-ok text-green-700 flex items-center gap-1"
-      >
-        <mat-icon>check_circle</mat-icon> {{ cvName }}
-      </p>
-
-      <!-- Selectores debajo de la zona de subida -->
-      <div class="grid sm:grid-cols-2 gap-4">
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Idioma</mat-label>
-          <mat-select [(ngModel)]="language">
-            <mat-option value="es">Español</mat-option>
-            <mat-option value="en">Inglés</mat-option>
-            <mat-option value="fr">Francés</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Tono</mat-label>
-          <mat-select [(ngModel)]="tone">
-            <mat-option value="formal">Formal</mat-option>
-            <mat-option value="profesional">Profesional</mat-option>
-            <mat-option value="cercano">Cercano</mat-option>
-          </mat-select>
-        </mat-form-field>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Application Helper</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  </head>
+<body>
+  <!-- Grid principal -->
+  <div class="main-container">
+    <!-- COLUMNA IZQUIERDA -->
+    <div class="left-column">
+      <!-- 1. Información de la oferta -->
+      <div class="modern-card">
+        <h2 class="card-title">
+          <i class="fas fa-briefcase"></i> Información de la oferta
+        </h2>
+        <textarea
+          class="modern-textarea"
+          rows="10"
+          [(ngModel)]="offerText"
+          placeholder="✨ Pega aquí la descripción completa de la oferta de trabajo que te interesa..."
+        ></textarea>
       </div>
-    </mat-card>
 
-    <!-- 3. Botones de acción -->
-    <mat-card
-      appearance="outlined"
-      class="actions flex flex-wrap gap-4 mt-auto flex-grow"
-    >
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="generateCv()"
-        [disabled]="!cvName || generatingCv"
-      >
-        <mat-icon>description</mat-icon>
-        <span *ngIf="!generatingCv">Generar CV adaptado</span>
-        <span *ngIf="generatingCv">Generando CV…</span>
-      </button>
+      <!-- 2. Cargar CV + idioma/tono -->
+      <div class="modern-card">
+        <h2 class="card-title">
+          <i class="fas fa-cloud-upload-alt"></i> Cargar CV
+        </h2>
 
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="generateLetter()"
-        [disabled]="!offerText || generatingLetter"
-      >
-        <mat-icon>drafts</mat-icon>
-        <span *ngIf="!generatingLetter">Generar carta</span>
-        <span *ngIf="generatingLetter">Generando…</span>
-      </button>
-    </mat-card>
+        <!-- Zona arrastrar/soltar -->
+        <label class="upload-zone">
+          <input type="file" accept=".pdf" (change)="onCv($event)" />
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+          <div class="upload-text">
+            <strong>Arrastra tu CV aquí</strong> o haz clic para seleccionar
+            <br><small>Solo archivos PDF</small>
+          </div>
+        </label>
 
-    <!-- 3‑b. Resultados (solo cuando existan) -->
-    <ng-container *ngIf="generatedCvText || generatedLetter" class="space-y-4">
-      <mat-card
-        #cvResult
-        appearance="outlined"
-        *ngIf="generatedCvText"
-        class="p-4 space-y-2"
-      >
-        <h3 class="font-semibold flex items-center gap-2">
-          <mat-icon>article</mat-icon> CV adaptado
-        </h3>
-        <textarea readonly rows="12" class="w-full border rounded p-2">{{
-          generatedCvText
-        }}</textarea>
-      </mat-card>
+        <div *ngIf="cvName" class="file-uploaded">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ cvName }}</span>
+        </div>
 
-      <mat-card
-        #letterResult
-        appearance="outlined"
-        *ngIf="generatedLetter"
-        class="p-4 space-y-2"
-      >
-        <h3 class="font-semibold flex items-center gap-2">
-          <mat-icon>article</mat-icon> Carta generada
-        </h3>
-        <textarea readonly rows="10" class="w-full border rounded p-2">{{
-          generatedLetter
-        }}</textarea>
-      </mat-card>
-    </ng-container>
-  </div>
+        <!-- Selectores -->
+        <div class="form-grid">
+          <div class="modern-select">
+            <label>Idioma</label>
+            <select [(ngModel)]="language">
+              <option value="es">🇪🇸 Español</option>
+              <option value="en">🇺🇸 Inglés</option>
+              <option value="fr">🇫🇷 Francés</option>
+            </select>
+          </div>
 
-  <!-- COLUMNA DERECHA (CHAT) -->
-  <mat-card
-    id="interview-section"
-    appearance="outlined"
-    class="interview-card flex flex-col lg:min-w-[360px] h-[calc(100vh-100px-32px)] max-h-[calc(100vh-100px-32px)]"
-  >
-    <!-- ─────────────── TÍTULO ─────────────── -->
-    <h2 class="card-title">
-      <mat-icon>chat</mat-icon>
-      Entrevista simulada
-    </h2>
+          <div class="modern-select">
+            <label>Tono</label>
+            <select [(ngModel)]="tone">
+              <option value="formal">Formal</option>
+              <option value="profesional">Profesional</option>
+              <option value="cercano">Cercano</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-    <!-- ────────────── CONTROLES ───────────── -->
-    <div class="flex flex-wrap lg:flex-nowrap items-center gap-4">
-      <!-- selector nivel -->
-      <mat-form-field appearance="fill" class="min-w-[160px] flex-shrink-0">
-        <mat-label>Nivel</mat-label>
-        <mat-select [(ngModel)]="level">
-          <mat-option value="principiante">Principiante</mat-option>
-          <mat-option value="medio">Medio</mat-option>
-          <mat-option value="avanzado">Avanzado</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <!-- 3. Botones de acción -->
+      <div class="modern-card">
+        <div class="button-container">
+          <button
+            class="modern-button primary"
+            (click)="generateCv()"
+            [disabled]="!cvName || generatingCv"
+            [class.loading]="generatingCv"
+          >
+            <i class="fas fa-file-alt"></i>
+            <span *ngIf="!generatingCv">Generar CV adaptado</span>
+            <span *ngIf="generatingCv">Generando CV...</span>
+          </button>
 
-      <!-- botón iniciar -->
-      <button
-        mat-stroked-button
-        color="primary"
-        (click)="startInterview()"
-        [disabled]="
-          interviewActive || !parsedCv || !offerText || interviewLoading
-        "
-      >
-        <mat-icon>play_arrow</mat-icon>
-        <ng-container *ngIf="!interviewLoading">Iniciar</ng-container>
-        <ng-container *ngIf="interviewLoading">Preparando…</ng-container>
-      </button>
+          <button
+            class="modern-button secondary"
+            (click)="generateLetter()"
+            [disabled]="!offerText || generatingLetter"
+            [class.loading]="generatingLetter"
+          >
+            <i class="fas fa-envelope"></i>
+            <span *ngIf="!generatingLetter">Generar carta de presentación</span>
+            <span *ngIf="generatingLetter">Generando carta...</span>
+          </button>
+        </div>
+      </div>
 
-      <!-- botón terminar -->
-      <button
-        mat-stroked-button
-        color="warn"
-        (click)="endInterview()"
-        [disabled]="!interviewActive"
-      >
-        <mat-icon>stop</mat-icon>
-        Terminar
-      </button>
+      <!-- 4. Resultados -->
+      <div *ngIf="generatedCvText || generatedLetter" class="result-container">
+        <div *ngIf="generatedCvText" class="result-card">
+          <h3 class="result-title">
+            <i class="fas fa-file-alt"></i> CV Adaptado
+          </h3>
+          <textarea readonly class="result-textarea">{{ generatedCvText }}</textarea>
+        </div>
+
+        <div *ngIf="generatedLetter" class="result-card">
+          <h3 class="result-title">
+            <i class="fas fa-envelope"></i> Carta de Presentación
+          </h3>
+          <textarea readonly class="result-textarea">{{ generatedLetter }}</textarea>
+        </div>
+      </div>
     </div>
 
-    <!-- ─────────── LISTA MENSAJES ─────────── -->
-    <div
-      #chatWindow
-      class="flex-1 border rounded my-4 p-2 space-y-2 bg-slate-50 overflow-y-auto"
-    >
-      <div
-        *ngFor="let m of chat"
-        [ngClass]="{
-          'text-right': m.from === 'user',
-          'text-left': m.from === 'bot'
-        }"
-      >
-        <span
-          class="inline-block px-3 py-1 rounded-lg"
-          [ngClass]="
-            m.from === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'
-          "
+    <!-- COLUMNA DERECHA (CHAT) -->
+    <div class="chat-container">
+      <h2 class="card-title">
+        <i class="fas fa-comments"></i>
+        Entrevista Simulada
+      </h2>
+
+      <!-- Controles -->
+      <div class="chat-controls">
+        <div class="chat-select">
+          <label>Nivel</label>
+          <select [(ngModel)]="level">
+            <option value="principiante">Principiante</option>
+            <option value="medio">Medio</option>
+            <option value="avanzado">Avanzado</option>
+          </select>
+        </div>
+
+        <button
+          class="chat-button start"
+          (click)="startInterview()"
+          [disabled]="interviewActive || !parsedCv || !offerText || interviewLoading"
         >
-          {{ m.text }}
+          <i class="fas fa-play"></i>
+          <span *ngIf="!interviewLoading">Iniciar</span>
+          <span *ngIf="interviewLoading">Preparando...</span>
+        </button>
+
+        <button
+          class="chat-button stop"
+          (click)="endInterview()"
+          [disabled]="!interviewActive"
+        >
+          <i class="fas fa-stop"></i>
+          Terminar
+        </button>
+      </div>
+
+      <!-- Ventana de chat -->
+      <div class="chat-window" #chatWindow>
+        <div
+          *ngFor="let m of chat"
+          class="chat-message"
+          [class.user]="m.from === 'user'"
+          [class.bot]="m.from === 'bot'"
+        >
+          <div
+            class="message-bubble"
+            [class.user]="m.from === 'user'"
+            [class.bot]="m.from === 'bot'"
+          >
+            {{ m.text }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <form (submit)="sendMsg()" class="chat-input-container">
+        <input
+          class="chat-input"
+          placeholder="💬 Escribe tu respuesta aquí..."
+          [(ngModel)]="chatInput"
+          name="msg"
+        />
+        <button
+          type="submit"
+          class="send-button"
+          [disabled]="!chatInput.trim()"
+        >
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </form>
+
+      <!-- Feedback -->
+      <div *ngIf="lastFeedback" class="feedback-container">
+        <i class="fas fa-info-circle"></i>
+        <strong>Feedback:</strong> {{ lastFeedback }}
+        <span *ngIf="lastScore !== null">
+          – Puntuación: {{ lastScore | number : "1.0-2" }}
         </span>
       </div>
     </div>
-
-    <!-- Input -->
-    <form (submit)="sendMsg()" class="flex gap-2">
-      <input
-        matInput
-        placeholder="Escribe aquí…"
-        [(ngModel)]="chatInput"
-        name="msg"
-        class="flex-1 border rounded p-2"
-      />
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        [disabled]="!chatInput.trim()"
-      >
-        <mat-icon>send</mat-icon>
-      </button>
-    </form>
-
-    <!-- Feedback -->
-    <div *ngIf="lastFeedback" class="text-sm text-gray-500 mt-2">
-      <mat-icon inline>info</mat-icon>
-      <strong>Feedback:</strong> {{ lastFeedback }}
-      <span *ngIf="lastScore !== null">
-        – Puntuación: {{ lastScore | number : "1.0-2" }}
-      </span>
-    </div>
-  </mat-card>
-</div>
-<!-- /grid -->
+  </div>
+</body>
+</html>
