@@ -1,6 +1,6 @@
-/* CSS para home.component.css */
+/* CAMBIOS PRINCIPALES PARA EQUILIBRAR ALTURAS + MANTENER ESTILOS ORIGINALES */
 
-/* Variables CSS para colores modernos */
+/* Variables CSS para colores modernos - CONSERVAR ORIGINALES */
 :host {
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -21,7 +21,6 @@
   --main-bg: linear-gradient(135deg, #7764c2 0%, #7c4bb7 100%);
 }
 
-/* Agregar después de las variables CSS */
 /* Asegurar que el body también tenga el fondo correcto */
 ::ng-deep body {
   background: var(--main-bg) !important;
@@ -32,31 +31,6 @@
   background: var(--main-bg) !important;
   min-height: 100vh !important;
 }
-:host {
-  display: block;
-  min-height: 100vh; /* ALTURA COMPLETA */
-  height: auto; /* ALTURA AUTOMÁTICA PARA EXPANDIR */
-  background: var(--main-bg);
-  background-attachment: fixed; /* FONDO FIJO PARA EVITAR BLANCOS */
-  padding: 0;
-  margin: -1rem; /* Cancelar el padding del main */
-  padding: 2rem;
-}
-
-/* Ajustar margen top para compensar toolbar fijo */
-#top,
-#interview-section {
-  scroll-margin-top: 4rem;
-}
-
-/* Grid principal - CORREGIDO PARA MATCH DE COLOR */
-.main-grid {
-  background: var(--main-bg);
-  min-height: 100vh; /* ALTURA COMPLETA */
-  padding: 0;
-}
-
-/* CAMBIOS PRINCIPALES PARA EQUILIBRAR ALTURAS */
 
 /* Grid principal - AJUSTE CRÍTICO */
 @media (min-width: 1024px) {
@@ -70,13 +44,14 @@
   }
 }
 
-/* Columna izquierda - DISTRIBUCIÓN MEJORADA */
+/* Columna izquierda - DISTRIBUCIÓN MEJORADA PARA ESTRUCTURA FIJA */
 .left-column {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   height: 100%; /* ALTURA COMPLETA DEL GRID */
   min-height: 0; /* RESETEAR MIN-HEIGHT PARA PERMITIR FLEX */
+  overflow-y: auto; /* PERMITIR SCROLL INTERNO SI ES NECESARIO */
 }
 
 /* DISTRIBUCIÓN PROPORCIONAL DE TARJETAS EN LA IZQUIERDA */
@@ -96,13 +71,48 @@
   flex-direction: column;
 }
 
+/* CONTAINER PARA SELECTORES - POSICIONARLOS CORRECTAMENTE */
+.upload-selectors {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.upload-selectors mat-form-field {
+  flex: 1;
+}
+
+/* AJUSTE ESPECÍFICO PARA LA TARJETA DE ACCIONES */
 .actions {
   padding: 2rem !important;
-  flex: 0.8; /* PROPORCIÓN MENOR PARA BOTONES */
-  min-height: 0; /* PERMITIR FLEXIBILIDAD */
+  flex: 0 0 auto !important; /* NO FLEX, TAMAÑO FIJO */
+  min-height: auto !important;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* ALINEAR BOTONES AL FINAL */
+}
+
+/* CONTENEDOR DE RESULTADOS - CONTROLAR ALTURA */
+.result-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  max-height: 400px !important; /* ALTURA MÁXIMA PARA RESULTADOS */
+  overflow-y: auto !important; /* SCROLL SI ES NECESARIO */
+}
+
+/* TARJETAS DE RESULTADOS - TAMAÑO CONTROLADO */
+.result-cards mat-card {
+  flex: 0 0 auto !important; /* TAMAÑO FIJO, NO FLEX */
+  max-height: 300px !important;
+  overflow: hidden !important;
+}
+
+.result-cards mat-card textarea {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  resize: none !important;
 }
 
 /* TARJETA DE ENTREVISTA - ALTURA EXACTA */
@@ -206,7 +216,84 @@
   margin: 0 !important;
 }
 
-/* RESPONSIVE - MANTENER FUNCIONALIDAD EN MOBILE */
+/* SELECTORES DE FORMULARIO - MANTENER ESTILOS ORIGINALES */
+::ng-deep mat-form-field {
+  width: 100% !important;
+  margin-bottom: 1rem !important;
+}
+
+::ng-deep mat-form-field .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
+}
+
+::ng-deep mat-form-field .mat-form-field-infix {
+  padding: 1.25rem 0 !important;
+}
+
+::ng-deep mat-select {
+  padding: 1rem 1.5rem !important;
+  border-radius: var(--border-radius) !important;
+}
+
+::ng-deep .mat-select-trigger {
+  height: auto !important;
+  min-height: 52px !important;
+}
+
+/* BOTONES MODERNOS - MANTENER ESTILOS ORIGINALES */
+::ng-deep button[mat-raised-button] {
+  padding: 1.25rem 2.5rem !important;
+  border-radius: var(--border-radius) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  font-family: "Inter", sans-serif !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 60px !important;
+  box-shadow: var(--shadow-light) !important;
+  margin: 0.5rem !important;
+}
+
+::ng-deep button[mat-raised-button]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-medium) !important;
+}
+
+::ng-deep button[mat-raised-button]:active {
+  transform: translateY(0) !important;
+}
+
+::ng-deep button[mat-raised-button][color="primary"] {
+  background: var(--primary-gradient) !important;
+  color: white !important;
+}
+
+::ng-deep button[mat-raised-button][color="accent"] {
+  background: var(--secondary-gradient) !important;
+  color: white !important;
+}
+
+::ng-deep button[mat-stroked-button] {
+  padding: 1rem 2rem !important;
+  border-radius: var(--border-radius) !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  min-height: 52px !important;
+  margin: 0.25rem !important;
+}
+
+::ng-deep button[mat-stroked-button][color="primary"] {
+  background: var(--success-gradient) !important;
+  color: white !important;
+  border: none !important;
+}
+
+::ng-deep button[mat-stroked-button][color="warn"] {
+  background: var(--secondary-gradient) !important;
+  color: white !important;
+  border: none !important;
+}
 @media (max-width: 1023px) {
   .main-grid {
     display: block !important; /* VOLVER A BLOCK EN MOBILE */
