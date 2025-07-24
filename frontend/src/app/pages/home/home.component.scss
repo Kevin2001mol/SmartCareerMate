@@ -71,16 +71,35 @@
   flex-direction: column;
 }
 
-/* CONTAINER PARA SELECTORES - POSICIONARLOS CORRECTAMENTE */
+/* CONTAINER PARA SELECTORES - POSICIONARLOS CORRECTAMENTE Y DENTRO DEL CONTENEDOR */
 .upload-selectors {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .upload-selectors mat-form-field {
   flex: 1;
+  max-width: calc(50% - 0.5rem) !important; /* ASEGURAR QUE NO SE SALGAN */
+  min-width: 0 !important; /* PERMITIR CONTRACCIÓN */
+}
+
+/* SELECTORES ESPECÍFICOS PARA UPLOAD - MÁS PEQUEÑOS */
+::ng-deep .upload-selectors mat-form-field .mat-form-field-infix {
+  padding: 0.75rem 0 !important; /* PADDING REDUCIDO */
+}
+
+::ng-deep .upload-selectors .mat-select-trigger {
+  height: auto !important;
+  min-height: 40px !important; /* ALTURA REDUCIDA */
+}
+
+::ng-deep .upload-selectors mat-select {
+  padding: 0.75rem 1rem !important; /* PADDING REDUCIDO */
+  font-size: 0.9rem !important; /* TEXTO MÁS PEQUEÑO */
 }
 
 /* AJUSTE ESPECÍFICO PARA LA TARJETA DE ACCIONES */
@@ -150,11 +169,11 @@
   line-height: 1.6 !important;
 }
 
-/* ZONA DE SUBIDA - OCUPAR ESPACIO DISPONIBLE */
+/* ZONA DE SUBIDA - OCUPAR ESPACIO DISPONIBLE CON MEJOR PADDING */
 .upload-dropzone {
   border: 3px dashed #e2e8f0 !important;
   border-radius: var(--border-radius) !important;
-  padding: 2rem !important;
+  padding: 2rem !important; /* PADDING RESTAURADO */
   text-align: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -169,8 +188,38 @@
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  flex: 1 !important; /* OCUPAR ESPACIO DISPONIBLE */
-  min-height: 100px !important; /* ALTURA MÍNIMA REDUCIDA */
+  flex: 1 !important;
+  min-height: 120px !important; /* ALTURA MÍNIMA RESTAURADA */
+  margin-bottom: 1.5rem !important; /* MARGEN RESTAURADO */
+}
+
+.upload-dropzone:hover {
+  border-color: #667eea !important;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  ) !important;
+  transform: translateY(-2px) !important;
+}
+
+.upload-icon {
+  font-size: 3rem !important;
+  width: 3rem !important;
+  height: 3rem !important;
+  margin-bottom: 1rem !important;
+  background: var(--primary-gradient) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Texto en dropzone - PADDING RESTAURADO */
+.upload-dropzone span {
+  padding: 0 1rem !important;
+  line-height: 1.6 !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
 }
 
 /* CONTENEDOR DE BOTONES - MEJOR DISTRIBUCIÓN */
