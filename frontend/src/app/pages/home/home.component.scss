@@ -62,16 +62,18 @@
     grid-template-columns: 4fr minmax(540px, 2fr);
     gap: 2rem;
     min-height: 100vh; /* ALTURA COMPLETA */
-    align-items: start; /* CAMBIO DE STRETCH A START PARA MEJOR COMPORTAMIENTO */
+    align-items: stretch; /* VOLVER A STRETCH PARA ALTURAS IGUALES */
+    height: calc(100vh - 4rem); /* ALTURA FIJA MENOS PADDING */
   }
 }
 
-/* Columna izquierda */
+/* Columna izquierda - ALTURA CONTROLADA */
 .left-column {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   height: 100%;
+  min-height: calc(100vh - 8rem); /* ALTURA MÍNIMA ESPECÍFICA */
 }
 
 /* Estilos base para mat-card - PADDING MEJORADO */
@@ -103,10 +105,25 @@
   box-shadow: var(--shadow-large), 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Estilos específicos para las tarjetas */
-.offer-card,
-.upload-card,
-.interview-card,
+/* Estilos específicos para las tarjetas - ALTURAS OPTIMIZADAS */
+.offer-card {
+  @apply bg-white rounded-2xl shadow-xl;
+  flex: 1.8; /* PROPORCIÓN MAYOR PARA EL TEXTAREA */
+  min-height: 300px;
+}
+
+.upload-card {
+  @apply bg-white rounded-2xl shadow-xl;
+  flex: 1.2; /* PROPORCIÓN MEDIA */
+  min-height: 200px;
+}
+
+.interview-card {
+  @apply bg-white rounded-2xl shadow-xl;
+  height: calc(100vh - 8rem) !important; /* ALTURA AUMENTADA */
+  min-height: 600px !important; /* ALTURA MÍNIMA MAYOR */
+}
+
 .debug-card {
   @apply bg-white rounded-2xl shadow-xl;
 }
@@ -114,6 +131,8 @@
 .actions {
   padding: 2rem !important; /* PADDING MEJORADO */
   margin-top: auto;
+  flex: 0.8; /* PROPORCIÓN MENOR PARA BOTONES */
+  min-height: 120px; /* ALTURA MÍNIMA */
 }
 
 /* Títulos de tarjetas - PADDING MEJORADO */
@@ -134,10 +153,12 @@
   background-clip: text;
 }
 
-/* Textarea moderno - PADDING MEJORADO */
+/* Textarea moderno - ALTURA AJUSTADA AUTOMÁTICAMENTE */
 ::ng-deep textarea[matInput] {
   width: 100% !important;
+  height: 100% !important; /* ALTURA COMPLETA DEL CONTENEDOR */
   min-height: 200px !important;
+  max-height: 400px !important; /* ALTURA MÁXIMA PARA CONTROL */
   padding: 2rem !important; /* PADDING AUMENTADO */
   border: 2px solid var(--border-color) !important;
   border-radius: var(--border-radius) !important;
@@ -162,11 +183,11 @@
   font-style: italic !important;
 }
 
-/* Zona de subida de archivos - PADDING MEJORADO */
+/* Zona de subida de archivos - ALTURA FLEXIBLE */
 .upload-dropzone {
   border: 3px dashed #e2e8f0 !important;
   border-radius: var(--border-radius) !important;
-  padding: 3rem 2rem !important;
+  padding: 2rem !important; /* PADDING REDUCIDO PARA MEJOR DISTRIBUCIÓN */
   text-align: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -181,7 +202,8 @@
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  min-height: 160px !important;
+  flex: 1 !important; /* ALTURA FLEXIBLE */
+  min-height: 120px !important; /* ALTURA MÍNIMA REDUCIDA */
   margin-bottom: 1.5rem !important; /* MARGEN ADICIONAL */
 }
 
@@ -323,17 +345,19 @@
   min-width: 200px;
 }
 
-/* Resultados - PADDING MEJORADO */
+/* Resultados - ALTURA CONTROLADA */
 .result-cards {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   margin-top: 2rem;
+  flex: 2; /* PROPORCIÓN PARA LOS RESULTADOS */
 }
 
 .result-cards mat-card {
   background: rgba(255, 255, 255, 0.95) !important;
   padding: 2rem !important; /* PADDING MEJORADO */
+  flex: 1; /* DISTRIBUCIÓN EQUITATIVA */
 }
 
 .result-cards mat-card::before {
@@ -405,7 +429,7 @@
   white-space: nowrap !important;
 }
 
-/* Ventana de chat - PADDING MEJORADO */
+/* Ventana de chat - ALTURA MEJORADA */
 .chat-window {
   flex: 1;
   border: 2px solid var(--border-color);
@@ -421,7 +445,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem !important; /* GAP AUMENTADO */
-  min-height: 300px;
+  min-height: 400px !important; /* ALTURA MÍNIMA MAYOR */
+  max-height: calc(100vh - 300px) !important; /* ALTURA MÁXIMA CONTROLADA */
 }
 
 /* Mensajes de chat - PADDING MEJORADO */
@@ -549,8 +574,9 @@
   }
 
   .interview-card {
-    height: 70vh;
-    max-height: 70vh;
+    height: auto !important; /* ALTURA AUTOMÁTICA EN MOBILE */
+    max-height: none !important;
+    min-height: 500px !important; /* ALTURA MÍNIMA EN MOBILE */
   }
 
   /* Controles mobile - AJUSTE ESPECIAL */
