@@ -1,193 +1,92 @@
-/* CSS para home.component.css */
+/* CAMBIOS PRINCIPALES PARA EQUILIBRAR ALTURAS */
 
-/* Variables CSS para colores modernos */
-:host {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-  --card-bg: #ffffff;
-  --text-primary: #2d3748;
-  --text-secondary: #718096;
-  --border-color: #e2e8f0;
-  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --border-radius: 16px;
-  --border-radius-lg: 24px;
-  --main-bg: linear-gradient(135deg, #7764c2 0%, #7c4bb7 100%);
-}
-
-/* Agregar después de las variables CSS */
-/* Asegurar que el body también tenga el fondo correcto */
-::ng-deep body {
-  background: var(--main-bg) !important;
-  min-height: 100vh !important;
-}
-
-::ng-deep html {
-  background: var(--main-bg) !important;
-  min-height: 100vh !important;
-}
-:host {
-  display: block;
-  min-height: 100vh; /* ALTURA COMPLETA */
-  height: auto; /* ALTURA AUTOMÁTICA PARA EXPANDIR */
-  background: var(--main-bg);
-  background-attachment: fixed; /* FONDO FIJO PARA EVITAR BLANCOS */
-  padding: 0;
-  margin: -1rem; /* Cancelar el padding del main */
-  padding: 2rem;
-}
-
-/* Ajustar margen top para compensar toolbar fijo */
-#top,
-#interview-section {
-  scroll-margin-top: 4rem;
-}
-
-/* Grid principal - CORREGIDO PARA MATCH DE COLOR */
-.main-grid {
-  background: var(--main-bg);
-  min-height: 100vh; /* ALTURA COMPLETA */
-  padding: 0;
-}
-
+/* Grid principal - AJUSTE CRÍTICO */
 @media (min-width: 1024px) {
   .main-grid {
     display: grid;
     grid-template-columns: 4fr minmax(540px, 2fr);
     gap: 2rem;
-    min-height: 100vh; /* ALTURA COMPLETA */
-    align-items: stretch; /* VOLVER A STRETCH PARA ALTURAS IGUALES */
-    height: calc(100vh - 4rem); /* ALTURA FIJA MENOS PADDING */
+    min-height: calc(100vh - 8rem); /* ALTURA ESPECÍFICA */
+    height: calc(100vh - 8rem); /* ALTURA FIJA */
+    align-items: stretch; /* IMPORTANTE: mantener stretch */
   }
 }
 
-/* Columna izquierda - ALTURA CONTROLADA */
+/* Columna izquierda - DISTRIBUCIÓN MEJORADA */
 .left-column {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  height: 100%;
-  min-height: calc(100vh - 8rem); /* ALTURA MÍNIMA ESPECÍFICA */
+  height: 100%; /* ALTURA COMPLETA DEL GRID */
+  min-height: 0; /* RESETEAR MIN-HEIGHT PARA PERMITIR FLEX */
 }
 
-/* Estilos base para mat-card - PADDING MEJORADO */
-::ng-deep mat-card {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: var(--border-radius-lg) !important;
-  box-shadow: var(--shadow-large) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  padding: 2rem !important; /* PADDING AUMENTADO */
-}
-
-::ng-deep mat-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--primary-gradient);
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
-}
-
-::ng-deep mat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-large), 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Estilos específicos para las tarjetas - ALTURAS OPTIMIZADAS */
+/* DISTRIBUCIÓN PROPORCIONAL DE TARJETAS EN LA IZQUIERDA */
 .offer-card {
   @apply bg-white rounded-2xl shadow-xl;
-  flex: 1.8; /* PROPORCIÓN MAYOR PARA EL TEXTAREA */
-  min-height: 300px;
+  flex: 2; /* PROPORCIÓN MAYOR PARA TEXTAREA */
+  min-height: 0; /* PERMITIR FLEXIBILIDAD */
+  display: flex;
+  flex-direction: column;
 }
 
 .upload-card {
   @apply bg-white rounded-2xl shadow-xl;
   flex: 1.2; /* PROPORCIÓN MEDIA */
-  min-height: 200px;
-}
-
-.interview-card {
-  @apply bg-white rounded-2xl shadow-xl;
-  height: calc(100vh - 8rem) !important; /* ALTURA AUMENTADA */
-  min-height: 600px !important; /* ALTURA MÍNIMA MAYOR */
-}
-
-.debug-card {
-  @apply bg-white rounded-2xl shadow-xl;
+  min-height: 0; /* PERMITIR FLEXIBILIDAD */
+  display: flex;
+  flex-direction: column;
 }
 
 .actions {
-  padding: 2rem !important; /* PADDING MEJORADO */
-  margin-top: auto;
+  padding: 2rem !important;
   flex: 0.8; /* PROPORCIÓN MENOR PARA BOTONES */
-  min-height: 120px; /* ALTURA MÍNIMA */
+  min-height: 0; /* PERMITIR FLEXIBILIDAD */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* ALINEAR BOTONES AL FINAL */
 }
 
-/* Títulos de tarjetas - PADDING MEJORADO */
-.card-title {
-  @apply text-2xl font-bold flex items-center gap-3;
-  color: var(--text-primary);
-  margin-bottom: 2rem !important; /* MARGEN AUMENTADO */
-  padding-bottom: 1rem; /* PADDING ADICIONAL */
+/* TARJETA DE ENTREVISTA - ALTURA EXACTA */
+.interview-card {
+  @apply bg-white rounded-2xl shadow-xl;
+  height: 100% !important; /* ALTURA COMPLETA DEL GRID */
+  min-height: 0 !important; /* RESETEAR MIN-HEIGHT */
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-.card-title mat-icon {
-  font-size: 2rem !important;
-  width: 2rem !important;
-  height: 2rem !important;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* CONTENIDO INTERNO DE TARJETAS - FLEX MEJORADO */
+::ng-deep .offer-card mat-card-content,
+::ng-deep .upload-card mat-card-content {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  padding: 0 !important; /* QUITAR PADDING EXTRA */
 }
 
-/* Textarea moderno - ALTURA AJUSTADA AUTOMÁTICAMENTE */
+/* TEXTAREA - OCUPAR ESPACIO DISPONIBLE */
 ::ng-deep textarea[matInput] {
   width: 100% !important;
-  height: 100% !important; /* ALTURA COMPLETA DEL CONTENEDOR */
-  min-height: 200px !important;
-  max-height: 400px !important; /* ALTURA MÁXIMA PARA CONTROL */
-  padding: 2rem !important; /* PADDING AUMENTADO */
+  flex: 1 !important; /* OCUPAR TODO EL ESPACIO DISPONIBLE */
+  min-height: 150px !important; /* ALTURA MÍNIMA REDUCIDA */
+  max-height: none !important; /* QUITAR LÍMITE MÁXIMO */
+  padding: 2rem !important;
   border: 2px solid var(--border-color) !important;
   border-radius: var(--border-radius) !important;
   font-size: 1rem !important;
   font-family: "Inter", sans-serif !important;
-  resize: vertical !important;
+  resize: none !important; /* DESACTIVAR RESIZE MANUAL */
   transition: all 0.3s ease !important;
   background: rgba(248, 250, 252, 0.8) !important;
   line-height: 1.6 !important;
-  margin-bottom: 1rem !important; /* MARGEN ADICIONAL */
 }
 
-::ng-deep textarea[matInput]:focus {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-  background: white !important;
-  outline: none !important;
-}
-
-::ng-deep textarea[matInput]::placeholder {
-  color: var(--text-secondary) !important;
-  font-style: italic !important;
-}
-
-/* Zona de subida de archivos - ALTURA FLEXIBLE */
+/* ZONA DE SUBIDA - OCUPAR ESPACIO DISPONIBLE */
 .upload-dropzone {
   border: 3px dashed #e2e8f0 !important;
   border-radius: var(--border-radius) !important;
-  padding: 2rem !important; /* PADDING REDUCIDO PARA MEJOR DISTRIBUCIÓN */
+  padding: 2rem !important;
   text-align: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -202,142 +101,17 @@
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  flex: 1 !important; /* ALTURA FLEXIBLE */
-  min-height: 120px !important; /* ALTURA MÍNIMA REDUCIDA */
-  margin-bottom: 1.5rem !important; /* MARGEN ADICIONAL */
+  flex: 1 !important; /* OCUPAR ESPACIO DISPONIBLE */
+  min-height: 100px !important; /* ALTURA MÍNIMA REDUCIDA */
 }
 
-.upload-dropzone:hover {
-  border-color: #667eea !important;
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.05) 0%,
-    rgba(118, 75, 162, 0.05) 100%
-  ) !important;
-  transform: translateY(-2px) !important;
-}
-
-.upload-icon {
-  font-size: 3rem !important;
-  width: 3rem !important;
-  height: 3rem !important;
-  margin-bottom: 1rem !important;
-  background: var(--primary-gradient) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-}
-
-/* Texto en dropzone - PADDING MEJORADO */
-.upload-dropzone span {
-  padding: 0 1rem !important;
-  line-height: 1.6 !important;
-}
-
-/* Estado de archivo subido - PADDING MEJORADO */
-.upload-ok {
-  @apply mt-4 text-sm font-semibold flex items-center gap-2 rounded-lg;
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.1) 0%,
-    rgba(5, 150, 105, 0.1) 100%
-  );
-  border: 2px solid rgba(16, 185, 129, 0.3);
-  color: #047857;
-  padding: 1rem 1.5rem !important; /* PADDING MEJORADO */
-  margin-bottom: 1rem !important; /* MARGEN ADICIONAL */
-}
-
-.upload-ok mat-icon {
-  color: #047857 !important;
-}
-
-/* Selectores de formulario - PADDING MEJORADO */
-::ng-deep mat-form-field {
-  width: 100% !important;
-  margin-bottom: 1rem !important; /* MARGEN ADICIONAL */
-}
-
-::ng-deep mat-form-field .mat-form-field-wrapper {
-  padding-bottom: 0 !important;
-}
-
-::ng-deep mat-form-field .mat-form-field-infix {
-  padding: 1.25rem 0 !important; /* PADDING AUMENTADO */
-}
-
-::ng-deep mat-select {
-  padding: 1rem 1.5rem !important; /* PADDING AUMENTADO */
-  border-radius: var(--border-radius) !important;
-}
-
-::ng-deep .mat-select-trigger {
-  height: auto !important;
-  min-height: 52px !important; /* ALTURA AUMENTADA */
-}
-
-/* Botones modernos - PADDING MEJORADO */
-::ng-deep button[mat-raised-button] {
-  padding: 1.25rem 2.5rem !important; /* PADDING AUMENTADO */
-  border-radius: var(--border-radius) !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  font-family: "Inter", sans-serif !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  min-height: 60px !important; /* ALTURA AUMENTADA */
-  box-shadow: var(--shadow-light) !important;
-  margin: 0.5rem !important; /* MARGEN ADICIONAL */
-}
-
-::ng-deep button[mat-raised-button]:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: var(--shadow-medium) !important;
-}
-
-::ng-deep button[mat-raised-button]:active {
-  transform: translateY(0) !important;
-}
-
-::ng-deep button[mat-raised-button][color="primary"] {
-  background: var(--primary-gradient) !important;
-  color: white !important;
-}
-
-::ng-deep button[mat-raised-button][color="accent"] {
-  background: var(--secondary-gradient) !important;
-  color: white !important;
-}
-
-::ng-deep button[mat-stroked-button] {
-  padding: 1rem 2rem !important; /* PADDING AUMENTADO */
-  border-radius: var(--border-radius) !important;
-  font-weight: 600 !important;
-  transition: all 0.3s ease !important;
-  min-height: 52px !important; /* ALTURA AUMENTADA */
-  margin: 0.25rem !important; /* MARGEN ADICIONAL */
-}
-
-::ng-deep button[mat-stroked-button][color="primary"] {
-  background: var(--success-gradient) !important;
-  color: white !important;
-  border: none !important;
-}
-
-::ng-deep button[mat-stroked-button][color="warn"] {
-  background: var(--secondary-gradient) !important;
-  color: white !important;
-  border: none !important;
-}
-
-/* Contenedor de acciones - PADDING MEJORADO */
+/* CONTENEDOR DE BOTONES - MEJOR DISTRIBUCIÓN */
 .button-container {
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
-  margin-top: auto;
-  padding-top: 2rem;
+  margin-top: auto; /* EMPUJAR AL FINAL */
+  padding-top: 1.5rem;
 }
 
 .button-container button {
@@ -345,96 +119,12 @@
   min-width: 200px;
 }
 
-/* Resultados - ALTURA CONTROLADA */
-.result-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 2rem;
-  flex: 2; /* PROPORCIÓN PARA LOS RESULTADOS */
-}
-
-.result-cards mat-card {
-  background: rgba(255, 255, 255, 0.95) !important;
-  padding: 2rem !important; /* PADDING MEJORADO */
-  flex: 1; /* DISTRIBUCIÓN EQUITATIVA */
-}
-
-.result-cards mat-card::before {
-  background: var(--success-gradient) !important;
-}
-
-::ng-deep .result-cards textarea {
-  width: 100% !important;
-  min-height: 250px !important;
-  padding: 2rem !important; /* PADDING AUMENTADO */
-  border: 2px solid var(--border-color) !important;
-  border-radius: var(--border-radius) !important;
-  font-family: "Inter", sans-serif !important;
-  font-size: 0.95rem !important;
-  line-height: 1.6 !important;
-  background: rgba(248, 250, 252, 0.5) !important;
-  resize: vertical !important;
-  color: var(--text-primary) !important;
-  margin-top: 1rem !important; /* MARGEN ADICIONAL */
-}
-
-/* Chat/Entrevista - PADDING MEJORADO */
-.interview-card {
-  padding: 2rem !important; /* PADDING MEJORADO */
-}
-
-.interview-card mat-card {
-  height: 100% !important;
-}
-
-.interview-card::before {
-  background: var(--success-gradient) !important;
-}
-
-/* Controles del chat - MEJORADO PARA ALINEACIÓN */
-.chat-controls {
-  display: flex;
-  flex-wrap: nowrap !important; /* CAMBIO CRÍTICO */
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem 0 !important; /* PADDING ADICIONAL */
-}
-
-/* Selector más pequeño - TAMAÑO REDUCIDO PERO CON MEJOR AJUSTE */
-.chat-controls mat-form-field {
-  min-width: 160px !important; /* AUMENTADO PARA MOSTRAR TODO EL TEXTO */
-  max-width: 160px !important; /* MÁXIMO AÑADIDO */
-  flex-shrink: 0;
-  margin-bottom: 0 !important; /* ELIMINAR MARGEN BOTTOM */
-}
-
-/* Override específico para el mat-select dentro del chat */
-::ng-deep .chat-controls .mat-select-value-text {
-  white-space: nowrap !important;
-  overflow: visible !important;
-  text-overflow: unset !important;
-}
-
-::ng-deep .chat-controls mat-select {
-  min-width: 160px !important;
-}
-
-/* Botones de chat alineados */
-.chat-controls button {
-  flex-shrink: 0 !important;
-  min-width: auto !important;
-  padding: 0.75rem 1.25rem !important; /* PADDING AJUSTADO */
-  white-space: nowrap !important;
-}
-
-/* Ventana de chat - ALTURA MEJORADA */
+/* CHAT WINDOW - OCUPAR ALTURA DISPONIBLE */
 .chat-window {
-  flex: 1;
+  flex: 1 !important; /* OCUPAR TODO EL ESPACIO DISPONIBLE */
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 2rem !important; /* PADDING AUMENTADO */
+  padding: 2rem !important;
   margin: 1rem 0;
   background: linear-gradient(
     135deg,
@@ -444,154 +134,60 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem !important; /* GAP AUMENTADO */
-  min-height: 400px !important; /* ALTURA MÍNIMA MAYOR */
-  max-height: calc(100vh - 300px) !important; /* ALTURA MÁXIMA CONTROLADA */
+  gap: 1.5rem !important;
+  min-height: 0 !important; /* PERMITIR FLEXIBILIDAD */
+  max-height: none !important; /* QUITAR LÍMITE MÁXIMO */
 }
 
-/* Mensajes de chat - PADDING MEJORADO */
-.chat-message {
-  max-width: 80%;
-  animation: fadeInUp 0.3s ease;
-}
-
-.chat-message.user {
-  align-self: flex-end;
-}
-
-.chat-message.bot {
-  align-self: flex-start;
-}
-
-.message-bubble {
-  padding: 1.25rem 2rem !important; /* PADDING AUMENTADO */
-  border-radius: 1.5rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  box-shadow: var(--shadow-light);
-}
-
-.message-bubble.user {
-  background: var(--primary-gradient);
-  color: white;
-  border-bottom-right-radius: 0.5rem;
-}
-
-.message-bubble.bot {
-  background: white;
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-bottom-left-radius: 0.5rem;
-}
-
-/* Input de chat - PADDING MEJORADO */
-::ng-deep .chat-input-form {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem !important; /* MARGEN AUMENTADO */
-  padding-top: 1rem !important; /* PADDING ADICIONAL */
-}
-
-::ng-deep .chat-input-form input[matInput] {
+/* AJUSTE ESPECÍFICO PARA MAT-CARD CONTENT */
+::ng-deep .interview-card mat-card-content {
+  display: flex !important;
+  flex-direction: column !important;
   flex: 1 !important;
-  padding: 1.25rem 2rem !important; /* PADDING AUMENTADO */
-  border: 2px solid var(--border-color) !important;
-  border-radius: var(--border-radius) !important;
-  font-size: 1rem !important;
-  font-family: "Inter", sans-serif !important;
-  background: white !important;
-  min-height: 52px !important; /* ALTURA MÍNIMA */
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-::ng-deep .chat-input-form input[matInput]:focus {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-  outline: none !important;
-}
-
-/* Feedback - PADDING MEJORADO */
-.feedback {
-  margin-top: 1.5rem !important; /* MARGEN AUMENTADO */
-  padding: 1.5rem !important; /* PADDING AUMENTADO */
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: var(--border-radius);
-  font-size: 0.9rem;
-  color: #1e40af;
-}
-
-.feedback mat-icon {
-  margin-right: 0.75rem !important; /* MARGEN AUMENTADO */
-  color: #1e40af !important;
-}
-
-/* Animaciones */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.loading {
-  animation: pulse 2s infinite;
-}
-
-/* Responsive - PADDING AJUSTADO */
-@media (max-width: 640px) {
-  :host {
-    padding: 1rem;
-  }
-
+/* RESPONSIVE - MANTENER FUNCIONALIDAD EN MOBILE */
+@media (max-width: 1023px) {
   .main-grid {
-    gap: 1.5rem;
+    display: block !important; /* VOLVER A BLOCK EN MOBILE */
+    height: auto !important;
+    min-height: auto !important;
   }
-
-  ::ng-deep mat-card {
-    padding: 1.5rem !important;
+  
+  .left-column {
+    height: auto !important;
   }
-
-  .button-container {
-    flex-direction: column;
-  }
-
-  .button-container button {
-    min-width: auto;
-  }
-
+  
+  .offer-card,
+  .upload-card,
+  .actions,
   .interview-card {
-    height: auto !important; /* ALTURA AUTOMÁTICA EN MOBILE */
-    max-height: none !important;
+    flex: none !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+  
+  .interview-card {
     min-height: 500px !important; /* ALTURA MÍNIMA EN MOBILE */
   }
-
-  /* Controles mobile - AJUSTE ESPECIAL */
-  .chat-controls {
-    flex-wrap: wrap !important;
-    align-items: stretch;
+  
+  ::ng-deep textarea[matInput] {
+    min-height: 200px !important;
+    max-height: 400px !important;
+    resize: vertical !important;
   }
+}
 
-  .chat-controls mat-form-field {
-    min-width: 140px !important; /* REDUCIDO SOLO EN MOBILE */
-    max-width: 140px !important;
-  }
-
-  .chat-controls button {
-    min-width: 80px !important;
-    padding: 0.5rem 1rem !important;
-  }
+/* AJUSTE ADICIONAL PARA EVITAR OVERFLOW */
+:host {
+  display: block;
+  min-height: 100vh;
+  height: 100vh; /* ALTURA FIJA PARA EL HOST */
+  background: var(--main-bg);
+  background-attachment: fixed;
+  padding: 2rem;
+  margin: -1rem;
+  overflow: hidden; /* EVITAR SCROLL GENERAL */
 }
