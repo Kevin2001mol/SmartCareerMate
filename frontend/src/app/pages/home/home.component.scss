@@ -38,9 +38,9 @@
     display: grid;
     grid-template-columns: 4fr minmax(540px, 2fr);
     gap: 2rem;
-    min-height: calc(100vh - 8rem); /* ALTURA ESPECÍFICA */
-    height: calc(100vh - 8rem); /* ALTURA FIJA */
-    align-items: stretch; /* IMPORTANTE: mantener stretch */
+    min-height: calc(100vh - 8rem);
+    height: calc(100vh - 8rem);
+    align-items: stretch;
   }
 }
 
@@ -49,63 +49,112 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  height: 100%; /* ALTURA COMPLETA DEL GRID */
-  min-height: 0; /* RESETEAR MIN-HEIGHT PARA PERMITIR FLEX */
-  overflow-y: auto; /* PERMITIR SCROLL INTERNO SI ES NECESARIO */
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* DISTRIBUCIÓN PROPORCIONAL DE TARJETAS EN LA IZQUIERDA */
 .offer-card {
   @apply bg-white rounded-2xl shadow-xl;
-  flex: 2; /* PROPORCIÓN MAYOR PARA TEXTAREA */
-  min-height: 0; /* PERMITIR FLEXIBILIDAD */
+  flex: 2;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .upload-card {
   @apply bg-white rounded-2xl shadow-xl;
-  flex: 1.2; /* PROPORCIÓN MEDIA */
-  min-height: 0; /* PERMITIR FLEXIBILIDAD */
+  flex: 1.2;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
-/* CONTAINER PARA SELECTORES - POSICIONARLOS CORRECTAMENTE Y DENTRO DEL CONTENEDOR */
-.upload-selectors {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+/* FIX PRINCIPAL: SELECTORES MÁS PEQUEÑOS Y CONTENIDOS */
+::ng-deep mat-form-field {
   width: 100% !important;
-  box-sizing: border-box !important;
+  margin-bottom: 0.5rem !important;
 }
 
-.upload-selectors mat-form-field {
-  flex: 1;
-  max-width: calc(50% - 0.5rem) !important; /* ASEGURAR QUE NO SE SALGAN */
-  min-width: 0 !important; /* PERMITIR CONTRACCIÓN */
+/* REDUCIR TAMAÑO GENERAL DE TODOS LOS MAT-SELECT */
+::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 0.5rem !important;
 }
 
-/* SELECTORES ESPECÍFICOS PARA UPLOAD - MÁS PEQUEÑOS */
-::ng-deep .upload-selectors mat-form-field .mat-form-field-infix {
-  padding: 0.75rem 0 !important; /* PADDING REDUCIDO */
+::ng-deep .mat-form-field-infix {
+  padding: 0.5rem 0 !important;
+  border-top: 0 !important;
 }
 
-::ng-deep .upload-selectors .mat-select-trigger {
-  height: auto !important;
-  min-height: 40px !important; /* ALTURA REDUCIDA */
+::ng-deep .mat-form-field-label-wrapper {
+  top: -1.2em !important;
+  padding-top: 0.5em !important;
 }
 
-::ng-deep .upload-selectors mat-select {
-  padding: 0.75rem 1rem !important; /* PADDING REDUCIDO */
-  font-size: 0.9rem !important; /* TEXTO MÁS PEQUEÑO */
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  padding: 0.5rem 0.75rem 0.25rem !important;
+  min-height: 42px !important;
+}
+
+/* SELECTORES ESPECÍFICOS MÁS PEQUEÑOS */
+::ng-deep mat-select {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.9rem !important;
+}
+
+::ng-deep .mat-select-trigger {
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+::ng-deep .mat-select-value {
+  font-size: 0.9rem !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD */
+.upload-card .grid {
+  margin-top: 1rem !important;
+}
+
+.upload-card mat-form-field {
+  max-width: 100% !important;
+}
+
+/* FIX PARA CONTROLES DE CHAT - MANTENERLOS EN LÍNEA */
+.chat-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  padding: 0.5rem 0 !important;
+}
+
+/* SELECTOR DE NIVEL EN CHAT - MÁS PEQUEÑO */
+.chat-controls mat-form-field {
+  flex: 0 0 auto !important;
+  min-width: 120px !important;
+  max-width: 160px !important;
+}
+
+/* BOTONES DE CHAT MÁS COMPACTOS */
+.chat-controls button[mat-stroked-button] {
+  padding: 0.5rem 1rem !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  font-size: 0.875rem !important;
+  white-space: nowrap !important;
 }
 
 /* AJUSTE ESPECÍFICO PARA LA TARJETA DE ACCIONES */
 .actions {
   padding: 2rem !important;
-  flex: 0 0 auto !important; /* NO FLEX, TAMAÑO FIJO */
+  flex: 0 0 auto !important;
   min-height: auto !important;
   display: flex;
   flex-direction: column;
@@ -117,13 +166,13 @@
   flex-direction: column;
   gap: 1rem;
   margin-top: 1rem;
-  max-height: 400px !important; /* ALTURA MÁXIMA PARA RESULTADOS */
-  overflow-y: auto !important; /* SCROLL SI ES NECESARIO */
+  max-height: 400px !important;
+  overflow-y: auto !important;
 }
 
 /* TARJETAS DE RESULTADOS - TAMAÑO CONTROLADO */
 .result-cards mat-card {
-  flex: 0 0 auto !important; /* TAMAÑO FIJO, NO FLEX */
+  flex: 0 0 auto !important;
   max-height: 300px !important;
   overflow: hidden !important;
 }
@@ -137,10 +186,11 @@
 /* TARJETA DE ENTREVISTA - ALTURA EXACTA */
 .interview-card {
   @apply bg-white rounded-2xl shadow-xl;
-  height: 100% !important; /* ALTURA COMPLETA DEL GRID */
-  min-height: 0 !important; /* RESETEAR MIN-HEIGHT */
+  height: 100% !important;
+  min-height: 0 !important;
   display: flex !important;
   flex-direction: column !important;
+  overflow: hidden !important;
 }
 
 /* CONTENIDO INTERNO DE TARJETAS - FLEX MEJORADO */
@@ -149,21 +199,21 @@
   display: flex !important;
   flex-direction: column !important;
   flex: 1 !important;
-  padding: 0 !important; /* QUITAR PADDING EXTRA */
+  padding: 0 !important;
 }
 
 /* TEXTAREA - OCUPAR ESPACIO DISPONIBLE */
 ::ng-deep textarea[matInput] {
   width: 100% !important;
-  flex: 1 !important; /* OCUPAR TODO EL ESPACIO DISPONIBLE */
-  min-height: 150px !important; /* ALTURA MÍNIMA REDUCIDA */
-  max-height: none !important; /* QUITAR LÍMITE MÁXIMO */
+  flex: 1 !important;
+  min-height: 150px !important;
+  max-height: none !important;
   padding: 2rem !important;
   border: 2px solid var(--border-color) !important;
   border-radius: var(--border-radius) !important;
   font-size: 1rem !important;
   font-family: "Inter", sans-serif !important;
-  resize: none !important; /* DESACTIVAR RESIZE MANUAL */
+  resize: none !important;
   transition: all 0.3s ease !important;
   background: rgba(248, 250, 252, 0.8) !important;
   line-height: 1.6 !important;
@@ -173,7 +223,7 @@
 .upload-dropzone {
   border: 3px dashed #e2e8f0 !important;
   border-radius: var(--border-radius) !important;
-  padding: 2rem !important; /* PADDING RESTAURADO */
+  padding: 2rem !important;
   text-align: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -189,8 +239,8 @@
   justify-content: center !important;
   align-items: center !important;
   flex: 1 !important;
-  min-height: 120px !important; /* ALTURA MÍNIMA RESTAURADA */
-  margin-bottom: 1.5rem !important; /* MARGEN RESTAURADO */
+  min-height: 120px !important;
+  margin-bottom: 1.5rem !important;
 }
 
 .upload-dropzone:hover {
@@ -214,7 +264,7 @@
   background-clip: text !important;
 }
 
-/* Texto en dropzone - PADDING RESTAURADO */
+/* Texto en dropzone */
 .upload-dropzone span {
   padding: 0 1rem !important;
   line-height: 1.6 !important;
@@ -227,7 +277,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
-  margin-top: auto; /* EMPUJAR AL FINAL */
+  margin-top: auto;
   padding-top: 1.5rem;
 }
 
@@ -238,7 +288,7 @@
 
 /* CHAT WINDOW - OCUPAR ALTURA DISPONIBLE */
 .chat-window {
-  flex: 1 !important; /* OCUPAR TODO EL ESPACIO DISPONIBLE */
+  flex: 1 !important;
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 2rem !important;
@@ -252,8 +302,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem !important;
-  min-height: 0 !important; /* PERMITIR FLEXIBILIDAD */
-  max-height: none !important; /* QUITAR LÍMITE MÁXIMO */
+  min-height: 0 !important;
+  max-height: none !important;
 }
 
 /* AJUSTE ESPECÍFICO PARA MAT-CARD CONTENT */
@@ -263,30 +313,7 @@
   flex: 1 !important;
   padding: 0 !important;
   margin: 0 !important;
-}
-
-/* SELECTORES DE FORMULARIO - MANTENER ESTILOS ORIGINALES */
-::ng-deep mat-form-field {
-  width: 100% !important;
-  margin-bottom: 1rem !important;
-}
-
-::ng-deep mat-form-field .mat-form-field-wrapper {
-  padding-bottom: 0 !important;
-}
-
-::ng-deep mat-form-field .mat-form-field-infix {
-  padding: 1.25rem 0 !important;
-}
-
-::ng-deep mat-select {
-  padding: 1rem 1.5rem !important;
-  border-radius: var(--border-radius) !important;
-}
-
-::ng-deep .mat-select-trigger {
-  height: auto !important;
-  min-height: 52px !important;
+  overflow: hidden !important;
 }
 
 /* BOTONES MODERNOS - MANTENER ESTILOS ORIGINALES */
@@ -343,9 +370,11 @@
   color: white !important;
   border: none !important;
 }
+
+/* MEDIA QUERIES PARA RESPONSIVIDAD */
 @media (max-width: 1023px) {
   .main-grid {
-    display: block !important; /* VOLVER A BLOCK EN MOBILE */
+    display: block !important;
     height: auto !important;
     min-height: auto !important;
   }
@@ -361,10 +390,11 @@
     flex: none !important;
     height: auto !important;
     min-height: auto !important;
+    margin-bottom: 2rem !important;
   }
   
   .interview-card {
-    min-height: 500px !important; /* ALTURA MÍNIMA EN MOBILE */
+    min-height: 500px !important;
   }
   
   ::ng-deep textarea[matInput] {
@@ -372,16 +402,38 @@
     max-height: 400px !important;
     resize: vertical !important;
   }
+  
+  /* Controles de chat en móvil */
+  .chat-controls {
+    flex-wrap: wrap !important;
+  }
+  
+  .chat-controls mat-form-field {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
 }
 
 /* AJUSTE ADICIONAL PARA EVITAR OVERFLOW */
 :host {
   display: block;
   min-height: 100vh;
-  height: 100vh; /* ALTURA FIJA PARA EL HOST */
+  height: 100vh;
   background: var(--main-bg);
   background-attachment: fixed;
   padding: 2rem;
   margin: -1rem;
-  overflow: hidden; /* EVITAR SCROLL GENERAL */
+  overflow: hidden;
+}
+
+/* FIX ADICIONAL PARA TÍTULOS DE CARDS */
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
