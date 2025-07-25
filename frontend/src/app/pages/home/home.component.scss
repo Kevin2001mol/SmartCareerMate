@@ -73,6 +73,31 @@
   overflow: visible !important;
 }
 
+/* NUEVO LAYOUT: CONTENEDOR FLEX HORIZONTAL */
+.upload-card-content {
+  display: flex !important;
+  gap: 1.5rem !important;
+  align-items: flex-start !important;
+  margin-bottom: 1rem !important;
+}
+
+/* ZONA DE CARGA A LA IZQUIERDA - MÁS ESTRECHA */
+.upload-section {
+  flex: 0 0 60% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+/* SELECTORES A LA DERECHA - APILADOS */
+.selectors-section {
+  flex: 0 0 35% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  padding-top: 1rem !important;
+}
+
 /* FIX PRINCIPAL: SELECTORES MÁS PEQUEÑOS Y CONTENIDOS */
 ::ng-deep mat-form-field {
   width: 100% !important;
@@ -118,51 +143,49 @@
   white-space: nowrap !important;
 }
 
-/* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD */
-.upload-card .grid {
-  margin-top: 1rem !important;
-  position: relative !important;
-  z-index: 10 !important;
+/* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD - VERSIÓN COMPACTA */
+.selectors-section mat-form-field {
+  width: 100% !important;
+  margin-bottom: 0 !important;
 }
 
-.upload-card mat-form-field {
-  max-width: 100% !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
-
-/* CONTENEDOR ESPECÍFICO PARA LOS SELECTORES DE IDIOMA Y TONO */
-.upload-card .grid.sm\:grid-cols-2 {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 1rem !important;
-  padding: 0 1rem !important;
-  margin-bottom: 1rem !important;
-}
-
-/* AJUSTE ESPECÍFICO PARA LOS MAT-FORM-FIELD EN UPLOAD CARD */
-.upload-card ::ng-deep .mat-form-field-wrapper {
+/* SELECTORES ULTRA COMPACTOS PARA LA SECCIÓN DERECHA */
+.selectors-section ::ng-deep .mat-form-field-wrapper {
   padding-bottom: 0.25rem !important;
   margin-bottom: 0 !important;
 }
 
-.upload-card ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
-  padding: 0.4rem 0.6rem 0.2rem !important;
-  min-height: 36px !important;
-  background-color: rgba(255, 255, 255, 0.9) !important;
+.selectors-section ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  padding: 0.35rem 0.5rem 0.15rem !important;
+  min-height: 32px !important;
+  background-color: rgba(248, 250, 252, 0.9) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
 }
 
-.upload-card ::ng-deep .mat-select-trigger {
-  height: 28px !important;
-  min-height: 28px !important;
+.selectors-section ::ng-deep .mat-select-trigger {
+  height: 24px !important;
+  min-height: 24px !important;
 }
 
-.upload-card ::ng-deep .mat-form-field-label {
+.selectors-section ::ng-deep .mat-form-field-label {
+  font-size: 0.8rem !important;
+  top: 0.75em !important;
+}
+
+.selectors-section ::ng-deep .mat-select-value {
   font-size: 0.85rem !important;
+  line-height: 1.2 !important;
 }
 
-.upload-card ::ng-deep .mat-select-value {
-  font-size: 0.85rem !important;
+.selectors-section ::ng-deep .mat-form-field-infix {
+  padding: 0.25rem 0 !important;
+  border-top: 0 !important;
+}
+
+/* ELIMINAR EL UNDERLINE EN LOS SELECTORES COMPACTOS */
+.selectors-section ::ng-deep .mat-form-field-underline {
+  display: none !important;
 }
 
 /* FIX PARA CONTROLES DE CHAT - MANTENERLOS EN LÍNEA */
@@ -259,11 +282,11 @@
   line-height: 1.6 !important;
 }
 
-/* ZONA DE SUBIDA - OCUPAR ESPACIO DISPONIBLE CON MEJOR PADDING */
+/* ZONA DE SUBIDA - AJUSTADA PARA NUEVO LAYOUT */
 .upload-dropzone {
   border: 3px dashed #e2e8f0 !important;
   border-radius: var(--border-radius) !important;
-  padding: 2rem !important;
+  padding: 1.5rem !important;
   text-align: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -278,9 +301,8 @@
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  flex: 0 0 auto !important;
-  min-height: 100px !important;
-  margin-bottom: 1rem !important;
+  min-height: 140px !important;
+  width: 100% !important;
 }
 
 .upload-dropzone:hover {
@@ -452,6 +474,27 @@
     min-width: 100% !important;
     max-width: 100% !important;
     margin-bottom: 0.5rem !important;
+  }
+  
+  /* LAYOUT VERTICAL EN MÓVIL PARA UPLOAD CARD */
+  .upload-card-content {
+    flex-direction: column !important;
+  }
+  
+  .upload-section,
+  .selectors-section {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+  
+  .selectors-section {
+    flex-direction: row !important;
+    gap: 1rem !important;
+    padding-top: 0 !important;
+  }
+  
+  .selectors-section mat-form-field {
+    flex: 1 !important;
   }
 }
 
