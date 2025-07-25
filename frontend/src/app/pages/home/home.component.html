@@ -79,16 +79,8 @@
           [class.loading]="generatingCv"
         >
           <mat-icon>description</mat-icon>
-          <span
-            class="text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:opacity-90"
-            *ngIf="!generatingCv"
-            >Generar CV adaptado</span
-          >
-          <span
-            class="bg-gradient-to-r from-pink-400 to-pink-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:opacity-90"
-            *ngIf="generatingCv"
-            >Generando CV…</span
-          >
+          <span *ngIf="!generatingCv">Generar CV adaptado</span>
+          <span *ngIf="generatingCv">Generando CV…</span>
         </button>
 
         <button
@@ -104,38 +96,8 @@
         </button>
       </div>
     </mat-card>
-
-    <!-- 3‑b. Resultados (solo cuando existan) -->
-    <ng-container
-      *ngIf="generatedCvText || generatedLetter"
-      class="result-cards"
-    >
-      <mat-card
-        #cvResult
-        appearance="outlined"
-        *ngIf="generatedCvText"
-        class="p-4 space-y-2"
-      >
-        <h3 class="card-title"><mat-icon>article</mat-icon> CV adaptado</h3>
-        <textarea readonly rows="12" class="w-full border rounded p-2">{{
-          generatedCvText
-        }}</textarea>
-      </mat-card>
-
-      <mat-card
-        #letterResult
-        appearance="outlined"
-        *ngIf="generatedLetter"
-        class="p-4 space-y-2"
-      >
-        <h3 class="card-title"><mat-icon>article</mat-icon> Carta generada</h3>
-        <textarea readonly rows="10" class="w-full border rounded p-2">{{
-          generatedLetter
-        }}</textarea>
-      </mat-card>
-    </ng-container>
   </div>
-
+  
   <!-- COLUMNA DERECHA (CHAT) -->
   <mat-card
     id="interview-section"
@@ -171,7 +133,9 @@
       >
         <mat-icon>play_arrow</mat-icon>
         <ng-container *ngIf="!interviewLoading">Iniciar</ng-container>
-        <ng-container *ngIf="interviewLoading">⏳ Un momento, el reclutador está de camino, vaya tomando asiento…</ng-container>
+        <ng-container *ngIf="interviewLoading"
+          >Iniciando…</ng-container
+        >
       </button>
 
       <!-- botón terminar -->
@@ -237,3 +201,40 @@
   </mat-card>
 </div>
 <!-- /grid -->
+<!-- 3‑b. Resultados (solo cuando existan) -->
+
+  <ng-container *ngIf="generatedCvText || generatedLetter">
+    <div class="result-block">
+      <!-- CV adaptado -->
+      <mat-card
+        #cvResult
+        appearance="outlined"
+        class="result-card"
+        *ngIf="generatedCvText"
+      >
+        <h3 class="card-title">
+          <mat-icon>article</mat-icon>
+          CV adaptado
+        </h3>
+        <textarea readonly rows="12" class="w-full border rounded p-2">{{
+          generatedCvText
+        }}</textarea>
+      </mat-card>
+
+      <!-- Carta generada -->
+      <mat-card
+        #letterResult
+        appearance="outlined"
+        class="result-card"
+        *ngIf="generatedLetter"
+      >
+        <h3 class="card-title">
+          <mat-icon>article</mat-icon>
+          Carta generada
+        </h3>
+        <textarea readonly rows="10" class="w-full border rounded p-2">{{
+          generatedLetter
+        }}</textarea>
+      </mat-card>
+    </div>
+  </ng-container>

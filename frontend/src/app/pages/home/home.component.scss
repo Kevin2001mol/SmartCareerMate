@@ -31,15 +31,33 @@
   background: var(--main-bg) !important;
   min-height: 100vh !important;
 }
+/* ———  Resultados debajo del grid  ——— */
+.result-block {
+  margin-top: 2rem;
+  display: grid;
+  gap: 2rem;
+}
+
+/* mismas esquinas, fondo y sombra */
+.result-card {
+  border-radius: var(--border-radius-lg);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-light);
+  padding: 2rem;
+}
 
 /* Grid principal - AJUSTE CRÍTICO */
 @media (min-width: 1024px) {
+  .result-block {
+    grid-column: 1 / -1;
+  }
+
   .main-grid {
     display: grid;
     grid-template-columns: 4fr minmax(540px, 2fr);
     gap: 2rem;
     min-height: calc(100vh - 8rem);
-    height: calc(100vh - 8rem);
+    height: auto !important; /* se expande según contenido  */
     align-items: stretch;
   }
 }
@@ -49,9 +67,9 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  height: 100%;
+  height: calc(100vh - 8rem); /* 8 rem = lo que ya usa .main-grid  */
   min-height: 0;
-  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* DISTRIBUCIÓN PROPORCIONAL DE TARJETAS EN LA IZQUIERDA */
@@ -69,15 +87,15 @@
   flex-direction: column;
   padding: 2rem !important;
   overflow: visible !important;
-  height: auto !important;  /* NUEVO */
+  height: auto !important; /* NUEVO */
 }
 
 /* NUEVO LAYOUT: CONTENEDOR FLEX HORIZONTAL */
 .upload-card-content {
   display: grid !important;
-  grid-template-columns: 60% 40%;   /* mismos anchos que ya usabas */
+  grid-template-columns: 60% 40%; /* mismos anchos que ya usabas */
   gap: 1.5rem !important;
-  height: 100%;                     /* hace que ambas columnas se estiren igual */
+  height: 100%; /* hace que ambas columnas se estiren igual */
   margin-bottom: 1rem !important;
 }
 
@@ -90,16 +108,22 @@
 }
 
 /* SELECTORES A LA DERECHA - APILADOS */
-.selectors-section{
-  padding-top: 0 !important;   /* quita el desplazamiento hacia abajo   */
-  padding-bottom: 0 !important;/* evita espacio extra abajo (opcional)  */
-  height: 100% !important;     /* se estira igual que la zona de carga  */
+.selectors-section {
+  padding-top: 0 !important; /* quita el desplazamiento hacia abajo   */
+  padding-bottom: 0 !important; /* evita espacio extra abajo (opcional)  */
+  height: 100% !important; /* se estira igual que la zona de carga  */
   display: flex !important;
   flex-direction: column !important;
 }
 .upload-section,
-.selectors-section{
+.selectors-section {
   height: 100% !important;
+}
+/* Los 3 mat‑card superiores NO deben crecer con el contenido       */
+.left-column > .offer-card,
+.left-column > .upload-card,
+.left-column > .actions {
+  flex: 0 0 auto; /* tamaño intrínseco, sin estirarse   */
 }
 
 /* FIX PRINCIPAL: SELECTORES MÁS PEQUEÑOS Y CONTENIDOS */
@@ -149,15 +173,15 @@
 
 /* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD - VERSIÓN COMPACTA */
 .selectors-section mat-form-field {
-  flex: 1 1 auto !important;   /* crece y se reparte 50 %/50 % */
+  flex: 1 1 auto !important; /* crece y se reparte 50 %/50 % */
 }
 /* Primer selector pegado arriba */
-.selectors-section mat-form-field:first-child{
+.selectors-section mat-form-field:first-child {
   margin-top: 0 !important;
 }
 
 /* Segundo selector pegado abajo */
-.selectors-section mat-form-field:last-child{
+.selectors-section mat-form-field:last-child {
   margin-top: auto !important; /* empuja todo el espacio libre arriba   */
 }
 
@@ -167,7 +191,10 @@
   margin-bottom: 0 !important;
 }
 
-.selectors-section ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+.selectors-section
+  ::ng-deep
+  .mat-form-field-appearance-fill
+  .mat-form-field-flex {
   padding: 0.35rem 0.5rem 0.15rem !important;
   min-height: 32px !important;
   background-color: rgba(248, 250, 252, 0.9) !important;
@@ -261,12 +288,14 @@
 /* TARJETA DE ENTREVISTA - ALTURA EXACTA */
 .interview-card {
   @apply bg-white rounded-2xl shadow-xl;
-  height: 100% !important;
+  height: calc(100vh - 8rem); /* alto fijo igual que antes         */
   min-height: 0 !important;
   display: flex !important;
   flex-direction: column !important;
+  flex: none !important; /* no se estira                     */
   overflow: hidden !important;
   padding: 2rem !important;
+  position: sticky; /* permanece visible al hacer scroll */
 }
 
 /* CONTENIDO INTERNO DE TARJETAS - FLEX MEJORADO */
@@ -299,7 +328,7 @@
 .upload-dropzone {
   border: 3px dashed #e2e8f0 !important;
   border-radius: var(--border-radius) !important;
-  padding: 1.5rem !important;
+  padding: 1rem !important;
   text-align: center !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -445,7 +474,10 @@
   color: white !important;
   border: none !important;
 }
-
+.left-column {
+  min-height: 0;
+  height: calc(100vh - 8rem); /* 8 rem = lo que ya usa .main-grid  */
+}
 /* MEDIA QUERIES PARA RESPONSIVIDAD */
 @media (max-width: 1023px) {
   .main-grid {
@@ -453,11 +485,12 @@
     height: auto !important;
     min-height: auto !important;
   }
-  
+
   .left-column {
+    min-height: 0;
     height: auto !important;
   }
-  
+
   .offer-card,
   .upload-card,
   .actions,
@@ -466,46 +499,51 @@
     height: auto !important;
     min-height: auto !important;
     margin-bottom: 2rem !important;
+    background: var(--card-bg) !important; /* fondo blanco coherente     */
+    border-radius: var(
+      --border-radius-lg
+    ) !important; /* usa 24 px (igual que rounded‑2xl) */
+    box-shadow: var(--shadow-light) !important;
   }
-  
+
   .interview-card {
     min-height: 500px !important;
   }
-  
+
   ::ng-deep textarea[matInput] {
     min-height: 200px !important;
     max-height: 400px !important;
     resize: vertical !important;
   }
-  
+
   /* Controles de chat en móvil */
   .chat-controls {
     flex-wrap: wrap !important;
   }
-  
+
   .chat-controls mat-form-field {
     min-width: 100% !important;
     max-width: 100% !important;
     margin-bottom: 0.5rem !important;
   }
-  
+
   /* LAYOUT VERTICAL EN MÓVIL PARA UPLOAD CARD */
   .upload-card-content {
     flex-direction: column !important;
   }
-  
+
   .upload-section,
   .selectors-section {
     flex: 1 1 100% !important;
     width: 100% !important;
   }
-  
+
   .selectors-section {
     flex-direction: row !important;
     gap: 1rem !important;
     padding-top: 0 !important;
   }
-  
+
   .selectors-section mat-form-field {
     flex: 1 !important;
   }
@@ -515,12 +553,13 @@
 :host {
   display: block;
   min-height: 100vh;
-  height: 100vh;
+  height: auto !important;
   background: var(--main-bg);
   background-attachment: fixed;
   padding: 2rem;
   margin: -1rem;
-  overflow: hidden;
+  overflow-y: auto; /* scroll vertical global */
+  overflow-x: hidden;
 }
 
 /* FIX PARA PREVENIR QUE LOS SELECTORES SE CORTEN */
@@ -551,35 +590,100 @@
 /* ─────────  MAT‑SELECT REDONDEADOS Y CON NUEVA PALETA  ───────── */
 
 /* 1️⃣ Caja del selector (estado normal) */
-.selectors-section ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex{
-  border-radius: 12px !important;                       /* esquinas suaves */
+.selectors-section
+  ::ng-deep
+  .mat-form-field-appearance-fill
+  .mat-form-field-flex {
+  border-radius: 12px !important; /* esquinas suaves */
   background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
-  border: 1px solid #cbd5e1 !important;                 /* tono gris‑azul claro */
+  border: 1px solid #cbd5e1 !important; /* tono gris‑azul claro */
 }
 
 /* 2️⃣ Flecha y texto: color acorde a la app (azul‑violeta) */
-.selectors-section ::ng-deep .mat-select-value{
-  color: #2d3748 !important;                            /* gris oscuro coherente */
+.selectors-section ::ng-deep .mat-select-value {
+  color: #2d3748 !important; /* gris oscuro coherente */
 }
 
-.selectors-section ::ng-deep .mat-select-arrow{
-  color: #667eea !important;                            /* mismo violeta del gradiente primario */
+.selectors-section ::ng-deep .mat-select-arrow {
+  color: #667eea !important; /* mismo violeta del gradiente primario */
 }
 
 /* 3️⃣ Hover y foco (al abrir) */
-.selectors-section ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex:hover,
-.selectors-section ::ng-deep .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex{
+.selectors-section
+  ::ng-deep
+  .mat-form-field-appearance-fill
+  .mat-form-field-flex:hover,
+.selectors-section
+  ::ng-deep
+  .mat-form-field-appearance-fill.mat-focused
+  .mat-form-field-flex {
   background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%) !important;
   border-color: #667eea !important;
 }
 
 /* 4️⃣ Panel desplegable con bordes redondeados */
-::ng-deep .mat-select-panel{
+::ng-deep .mat-select-panel {
   border-radius: 12px !important;
   padding-top: 0 !important;
 }
 
 /* 5️⃣ Opciones dentro del panel al hacer hover */
-::ng-deep .mat-option:hover:not(.mat-option-disabled){
-  background: #eceffe !important;                       /* violeta muy suave */
+::ng-deep .mat-option:hover:not(.mat-option-disabled) {
+  background: #eceffe !important; /* violeta muy suave */
+}
+/* --- REDONDEAR Upload‑Card y Actions igual que las otras tarjetas --- */
+
+/* 1️⃣  Tarjeta visible (mat‑card) */
+::ng-deep .upload-card.mat-card,
+::ng-deep .actions.mat-card {
+  border-radius: var(--border-radius-lg) !important; /* 24 px = rounded‑2xl   */
+  background: var(--card-bg) !important; /* blanco coherente      */
+  box-shadow: var(--shadow-light) !important; /* misma sombra suave    */
+  overflow: hidden !important; /* corta lo que sobresalga */
+}
+
+/* 2️⃣  Contenedor externo (por si no es mat‑card pero lleva clases custom) */
+.upload-card,
+.actions {
+  border-radius: var(--border-radius-lg) !important;
+  background: var(--card-bg) !important;
+  box-shadow: var(--shadow-light) !important;
+}
+/* ---------- Mantener degradado del botón Generar CV en todos los estados ---------- */
+
+/* 1️⃣  Selecciona el botón por su id o una clase propia (ajusta si es distinto) */
+#generate-cv-btn,
+#generate-cv-btn:hover,
+#generate-cv-btn:active,
+#generate-cv-btn.mat-button-disabled,         /* estado “disabled / busy”          */
+#generate-cv-btn.cdk-program-focused,         /* estado programático de Angular    */
+#generate-cv-btn.cdk-program-primary {
+  /* algunos themes añaden esta clase  */
+  background: var(
+    --primary-gradient
+  ) !important; /* mismo degradado violeta‑azul   */
+  color: #ffffff !important;
+  box-shadow: var(
+    --shadow-light
+  ) !important; /* sombra suave igual que antes    */
+}
+
+/* 2️⃣  Oculta el spinner o overlay que Angular coloca dentro del botón */
+#generate-cv-btn .mat-progress-spinner,
+#generate-cv-btn mat-progress-spinner,
+#generate-cv-btn .mat-button-focus-overlay {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* ── Ajuste de flex para que los 3 contenedores izquierda = alto del chat ── */
+.left-column > .offer-card,
+.left-column > .upload-card {
+  flex: 1 1 0 !important; /* se reparten espacio vertical  */
+  min-height: 0 !important; /* pueden encogerse si hace falta */
+}
+
+/* El bloque de botones no debe crecer: */
+.left-column > .actions {
+  flex: 0 0 auto !important; /* mantiene su alto intrínseco */
 }
