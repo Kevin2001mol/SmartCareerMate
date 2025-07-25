@@ -20,41 +20,48 @@
     <mat-card appearance="outlined" class="upload-card space-y-4">
       <h2 class="card-title"><mat-icon>upload</mat-icon> Cargar CV</h2>
 
-      <!-- Zona arrastrar/soltar -->
-      <label
-        class="upload-dropzone flex flex-col items-center justify-center border-2 border-dashed rounded-md p-6 cursor-pointer text-center hover:bg-slate-50"
-      >
-        <input type="file" accept=".pdf" hidden (change)="onCv($event)" />
-        <mat-icon class="upload-icon text-4xl mb-2">cloud_upload</mat-icon>
-        <span><strong>Arrastra tu CV aquí</strong> o haz clic para seleccionar<br><small>Solo archivos PDF</small></span>
-      </label>
+      <!-- Contenedor flex horizontal -->
+      <div class="upload-card-content">
+        <!-- Sección izquierda: zona de carga -->
+        <div class="upload-section">
+          <!-- Zona arrastrar/soltar -->
+          <label class="upload-dropzone">
+            <input type="file" accept=".pdf" hidden (change)="onCv($event)" />
+            <mat-icon class="upload-icon text-4xl mb-2">cloud_upload</mat-icon>
+            <span
+              ><strong>Arrastra tu CV aquí</strong> o haz clic para
+              seleccionar<br /><small>Solo archivos PDF</small></span
+            >
+          </label>
 
-      <p
-        *ngIf="cvName"
-        class="upload-ok text-green-700 flex items-center gap-1"
-      >
-        <mat-icon>check_circle</mat-icon> {{ cvName }}
-      </p>
+          <p
+            *ngIf="cvName"
+            class="upload-ok text-green-700 flex items-center gap-1"
+          >
+            <mat-icon>check_circle</mat-icon> {{ cvName }}
+          </p>
+        </div>
 
-      <!-- Selectores debajo de la zona de subida -->
-      <div class="grid sm:grid-cols-2 gap-4">
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Idioma</mat-label>
-          <mat-select [(ngModel)]="language">
-            <mat-option value="es">🇪🇸 Español</mat-option>
-            <mat-option value="en">🇺🇸 Inglés</mat-option>
-            <mat-option value="fr">🇫🇷 Francés</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <!-- Sección derecha: selectores apilados -->
+        <div class="selectors-section">
+          <mat-form-field appearance="fill">
+            <mat-label>Idioma</mat-label>
+            <mat-select [(ngModel)]="language">
+              <mat-option value="es">🇪🇸 Español</mat-option>
+              <mat-option value="en">🇺🇸 Inglés</mat-option>
+              <mat-option value="fr">🇫🇷 Francés</mat-option>
+            </mat-select>
+          </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Tono</mat-label>
-          <mat-select [(ngModel)]="tone">
-            <mat-option value="formal"> Formal</mat-option>
-            <mat-option value="profesional"> Profesional</mat-option>
-            <mat-option value="cercano"> Cercano</mat-option>
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Tono</mat-label>
+            <mat-select [(ngModel)]="tone">
+              <mat-option value="formal">Formal</mat-option>
+              <mat-option value="profesional">Profesional</mat-option>
+              <mat-option value="cercano">Cercano</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
     </mat-card>
 
@@ -72,8 +79,16 @@
           [class.loading]="generatingCv"
         >
           <mat-icon>description</mat-icon>
-          <span class="text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:opacity-90" *ngIf="!generatingCv">Generar CV adaptado</span>
-          <span class="bg-gradient-to-r from-pink-400 to-pink-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:opacity-90" *ngIf="generatingCv">Generando CV…</span>
+          <span
+            class="text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:opacity-90"
+            *ngIf="!generatingCv"
+            >Generar CV adaptado</span
+          >
+          <span
+            class="bg-gradient-to-r from-pink-400 to-pink-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:opacity-90"
+            *ngIf="generatingCv"
+            >Generando CV…</span
+          >
         </button>
 
         <button
@@ -91,16 +106,17 @@
     </mat-card>
 
     <!-- 3‑b. Resultados (solo cuando existan) -->
-    <ng-container *ngIf="generatedCvText || generatedLetter" class="result-cards">
+    <ng-container
+      *ngIf="generatedCvText || generatedLetter"
+      class="result-cards"
+    >
       <mat-card
         #cvResult
         appearance="outlined"
         *ngIf="generatedCvText"
         class="p-4 space-y-2"
       >
-        <h3 class="card-title">
-          <mat-icon>article</mat-icon> CV adaptado
-        </h3>
+        <h3 class="card-title"><mat-icon>article</mat-icon> CV adaptado</h3>
         <textarea readonly rows="12" class="w-full border rounded p-2">{{
           generatedCvText
         }}</textarea>
@@ -112,9 +128,7 @@
         *ngIf="generatedLetter"
         class="p-4 space-y-2"
       >
-        <h3 class="card-title">
-          <mat-icon>article</mat-icon> Carta generada
-        </h3>
+        <h3 class="card-title"><mat-icon>article</mat-icon> Carta generada</h3>
         <textarea readonly rows="10" class="w-full border rounded p-2">{{
           generatedLetter
         }}</textarea>
