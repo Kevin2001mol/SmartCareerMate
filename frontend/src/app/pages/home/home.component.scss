@@ -61,6 +61,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: 2rem !important;
 }
 
 .upload-card {
@@ -89,14 +90,12 @@
 }
 
 /* SELECTORES A LA DERECHA - APILADOS */
-.selectors-section {
-  flex: 0 0 35% !important;
+.selectors-section{
+  padding-top: 0 !important;   /* quita el desplazamiento hacia abajo   */
+  padding-bottom: 0 !important;/* evita espacio extra abajo (opcional)  */
+  height: 100% !important;     /* se estira igual que la zona de carga  */
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.75rem !important;
-  padding-top: 1rem !important;
-  justify-content: space-between;
-  align-self: stretch; /* NUEVO: se estira al mismo alto que el dropzone */
 }
 .upload-section,
 .selectors-section{
@@ -151,6 +150,15 @@
 /* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD - VERSIÓN COMPACTA */
 .selectors-section mat-form-field {
   flex: 1 1 auto !important;   /* crece y se reparte 50 %/50 % */
+}
+/* Primer selector pegado arriba */
+.selectors-section mat-form-field:first-child{
+  margin-top: 0 !important;
+}
+
+/* Segundo selector pegado abajo */
+.selectors-section mat-form-field:last-child{
+  margin-top: auto !important; /* empuja todo el espacio libre arriba   */
 }
 
 /* SELECTORES ULTRA COMPACTOS PARA LA SECCIÓN DERECHA */
@@ -258,6 +266,7 @@
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
+  padding: 2rem !important;
 }
 
 /* CONTENIDO INTERNO DE TARJETAS - FLEX MEJORADO */
@@ -535,6 +544,42 @@
   gap: 0.5rem;
   font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem !important;
   color: var(--text-primary);
+}
+
+/* ─────────  MAT‑SELECT REDONDEADOS Y CON NUEVA PALETA  ───────── */
+
+/* 1️⃣ Caja del selector (estado normal) */
+.selectors-section ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex{
+  border-radius: 12px !important;                       /* esquinas suaves */
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
+  border: 1px solid #cbd5e1 !important;                 /* tono gris‑azul claro */
+}
+
+/* 2️⃣ Flecha y texto: color acorde a la app (azul‑violeta) */
+.selectors-section ::ng-deep .mat-select-value{
+  color: #2d3748 !important;                            /* gris oscuro coherente */
+}
+
+.selectors-section ::ng-deep .mat-select-arrow{
+  color: #667eea !important;                            /* mismo violeta del gradiente primario */
+}
+
+/* 3️⃣ Hover y foco (al abrir) */
+.selectors-section ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex:hover,
+.selectors-section ::ng-deep .mat-form-field-appearance-fill.mat-focused .mat-form-field-flex{
+  background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%) !important;
+  border-color: #667eea !important;
+}
+
+/* 4️⃣ Panel desplegable con bordes redondeados */
+::ng-deep .mat-select-panel{
+  border-radius: 12px !important;
+  padding-top: 0 !important;
+}
+
+/* 5️⃣ Opciones dentro del panel al hacer hover */
+::ng-deep .mat-option:hover:not(.mat-option-disabled){
+  background: #eceffe !important;                       /* violeta muy suave */
 }
