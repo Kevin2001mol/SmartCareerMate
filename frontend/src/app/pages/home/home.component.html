@@ -1,9 +1,7 @@
 <!-- Grid principal -->
-<div
-  class="mx-auto max-w-screen-2xl p-4 pb-8 grid gap-6 lg:grid-cols-[4fr_minmax(540px,2fr)]"
->
+<div class="main-grid">
   <!-- COLUMNA IZQUIERDA  -->
-  <div class="lg:col-span-1 flex flex-col space-y-6 h-full">
+  <div class="left-column">
     <!-- 1. Información de la oferta -->
     <mat-card appearance="outlined" class="offer-card">
       <h2 class="card-title">
@@ -13,7 +11,7 @@
         matInput
         rows="10"
         [(ngModel)]="offerText"
-        placeholder="Pega aquí la descripción de la oferta…"
+        placeholder="✨ Pega aquí la descripción completa de la oferta de trabajo que te interesa..."
         class="w-full mt-2"
       ></textarea>
     </mat-card>
@@ -22,41 +20,48 @@
     <mat-card appearance="outlined" class="upload-card space-y-4">
       <h2 class="card-title"><mat-icon>upload</mat-icon> Cargar CV</h2>
 
-      <!-- Zona arrastrar/soltar -->
-      <label
-        class="upload-dropzone flex flex-col items-center justify-center border-2 border-dashed rounded-md p-6 cursor-pointer text-center hover:bg-slate-50"
-      >
-        <input type="file" accept=".pdf" hidden (change)="onCv($event)" />
-        <mat-icon class="upload-icon text-4xl mb-2">cloud_upload</mat-icon>
-        <span>Arrastra el PDF o haz clic para subir</span>
-      </label>
+      <!-- Contenedor flex horizontal -->
+      <div class="upload-card-content">
+        <!-- Sección izquierda: zona de carga -->
+        <div class="upload-section">
+          <!-- Zona arrastrar/soltar -->
+          <label class="upload-dropzone">
+            <input type="file" accept=".pdf" hidden (change)="onCv($event)" />
+            <mat-icon class="upload-icon text-4xl mb-2">cloud_upload</mat-icon>
+            <span
+              ><strong>Arrastra tu CV aquí</strong> o haz clic para
+              seleccionar<br /><small>Solo archivos PDF</small></span
+            >
+          </label>
 
-      <p
-        *ngIf="cvName"
-        class="upload-ok text-green-700 flex items-center gap-1"
-      >
-        <mat-icon>check_circle</mat-icon> {{ cvName }}
-      </p>
+          <p
+            *ngIf="cvName"
+            class="upload-ok text-green-700 flex items-center gap-1"
+          >
+            <mat-icon>check_circle</mat-icon> {{ cvName }}
+          </p>
+        </div>
 
-      <!-- Selectores debajo de la zona de subida -->
-      <div class="grid sm:grid-cols-2 gap-4">
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Idioma</mat-label>
-          <mat-select [(ngModel)]="language">
-            <mat-option value="es">Español</mat-option>
-            <mat-option value="en">Inglés</mat-option>
-            <mat-option value="fr">Francés</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <!-- Sección derecha: selectores apilados -->
+        <div class="selectors-section">
+          <mat-form-field appearance="fill">
+            <mat-label>Idioma</mat-label>
+            <mat-select [(ngModel)]="language">
+              <mat-option value="es">🇪🇸 Español</mat-option>
+              <mat-option value="en">🇺🇸 Inglés</mat-option>
+              <mat-option value="fr">🇫🇷 Francés</mat-option>
+            </mat-select>
+          </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-full">
-          <mat-label>Tono</mat-label>
-          <mat-select [(ngModel)]="tone">
-            <mat-option value="formal">Formal</mat-option>
-            <mat-option value="profesional">Profesional</mat-option>
-            <mat-option value="cercano">Cercano</mat-option>
-          </mat-select>
-        </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Tono</mat-label>
+            <mat-select [(ngModel)]="tone">
+              <mat-option value="formal">Formal</mat-option>
+              <mat-option value="profesional">Profesional</mat-option>
+              <mat-option value="cercano">Cercano</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
     </mat-card>
 
@@ -65,66 +70,39 @@
       appearance="outlined"
       class="actions flex flex-wrap gap-4 mt-auto flex-grow"
     >
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="generateCv()"
-        [disabled]="!cvName || generatingCv"
-      >
-        <mat-icon>description</mat-icon>
-        <span *ngIf="!generatingCv">Generar CV adaptado</span>
-        <span *ngIf="generatingCv">Generando CV…</span>
-      </button>
+      <div class="button-container">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="generateCv()"
+          [disabled]="!cvName || generatingCv"
+          [class.loading]="generatingCv"
+        >
+          <mat-icon>description</mat-icon>
+          <span *ngIf="!generatingCv">Generar CV adaptado</span>
+          <span *ngIf="generatingCv">Generando CV…</span>
+        </button>
 
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="generateLetter()"
-        [disabled]="!offerText || generatingLetter"
-      >
-        <mat-icon>drafts</mat-icon>
-        <span *ngIf="!generatingLetter">Generar carta</span>
-        <span *ngIf="generatingLetter">Generando…</span>
-      </button>
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="generateLetter()"
+          [disabled]="!offerText || generatingLetter"
+          [class.loading]="generatingLetter"
+        >
+          <mat-icon>drafts</mat-icon>
+          <span *ngIf="!generatingLetter">Generar carta</span>
+          <span *ngIf="generatingLetter">Generando carta…</span>
+        </button>
+      </div>
     </mat-card>
-
-    <!-- 3‑b. Resultados (solo cuando existan) -->
-    <ng-container *ngIf="generatedCvText || generatedLetter" class="space-y-4">
-      <mat-card
-        #cvResult
-        appearance="outlined"
-        *ngIf="generatedCvText"
-        class="p-4 space-y-2"
-      >
-        <h3 class="font-semibold flex items-center gap-2">
-          <mat-icon>article</mat-icon> CV adaptado
-        </h3>
-        <textarea readonly rows="12" class="w-full border rounded p-2">{{
-          generatedCvText
-        }}</textarea>
-      </mat-card>
-
-      <mat-card
-        #letterResult
-        appearance="outlined"
-        *ngIf="generatedLetter"
-        class="p-4 space-y-2"
-      >
-        <h3 class="font-semibold flex items-center gap-2">
-          <mat-icon>article</mat-icon> Carta generada
-        </h3>
-        <textarea readonly rows="10" class="w-full border rounded p-2">{{
-          generatedLetter
-        }}</textarea>
-      </mat-card>
-    </ng-container>
   </div>
-
+  
   <!-- COLUMNA DERECHA (CHAT) -->
   <mat-card
     id="interview-section"
     appearance="outlined"
-    class="interview-card flex flex-col lg:min-w-[360px] h-[calc(100vh-100px-32px)] max-h-[calc(100vh-100px-32px)]"
+    class="interview-card flex flex-col lg:min-w-[360px]"
   >
     <!-- ─────────────── TÍTULO ─────────────── -->
     <h2 class="card-title">
@@ -133,14 +111,14 @@
     </h2>
 
     <!-- ────────────── CONTROLES ───────────── -->
-    <div class="flex flex-wrap lg:flex-nowrap items-center gap-4">
+    <div class="chat-controls flex flex-wrap lg:flex-nowrap items-center gap-4">
       <!-- selector nivel -->
       <mat-form-field appearance="fill" class="min-w-[160px] flex-shrink-0">
         <mat-label>Nivel</mat-label>
         <mat-select [(ngModel)]="level">
-          <mat-option value="principiante">Principiante</mat-option>
-          <mat-option value="medio">Medio</mat-option>
-          <mat-option value="avanzado">Avanzado</mat-option>
+          <mat-option value="principiante"> Principiante</mat-option>
+          <mat-option value="medio"> Medio</mat-option>
+          <mat-option value="avanzado"> Avanzado</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -155,7 +133,9 @@
       >
         <mat-icon>play_arrow</mat-icon>
         <ng-container *ngIf="!interviewLoading">Iniciar</ng-container>
-        <ng-container *ngIf="interviewLoading">Preparando…</ng-container>
+        <ng-container *ngIf="interviewLoading"
+          >Iniciando…</ng-container
+        >
       </button>
 
       <!-- botón terminar -->
@@ -173,20 +153,18 @@
     <!-- ─────────── LISTA MENSAJES ─────────── -->
     <div
       #chatWindow
-      class="flex-1 border rounded my-4 p-2 space-y-2 bg-slate-50 overflow-y-auto"
+      class="chat-window flex-1 border rounded my-4 p-2 space-y-2 bg-slate-50 overflow-y-auto"
     >
       <div
         *ngFor="let m of chat"
-        [ngClass]="{
-          'text-right': m.from === 'user',
-          'text-left': m.from === 'bot'
-        }"
+        class="chat-message"
+        [class.user]="m.from === 'user'"
+        [class.bot]="m.from === 'bot'"
       >
         <span
-          class="inline-block px-3 py-1 rounded-lg"
-          [ngClass]="
-            m.from === 'user' ? 'bg-blue-600 text-white' : 'bg-white border'
-          "
+          class="message-bubble inline-block px-3 py-1 rounded-lg"
+          [class.user]="m.from === 'user'"
+          [class.bot]="m.from === 'bot'"
         >
           {{ m.text }}
         </span>
@@ -194,10 +172,10 @@
     </div>
 
     <!-- Input -->
-    <form (submit)="sendMsg()" class="flex gap-2">
+    <form (submit)="sendMsg()" class="chat-input-form flex gap-2">
       <input
         matInput
-        placeholder="Escribe aquí…"
+        placeholder="💬 Escribe tu respuesta aquí..."
         [(ngModel)]="chatInput"
         name="msg"
         class="flex-1 border rounded p-2"
@@ -213,7 +191,7 @@
     </form>
 
     <!-- Feedback -->
-    <div *ngIf="lastFeedback" class="text-sm text-gray-500 mt-2">
+    <div *ngIf="lastFeedback" class="feedback text-sm text-gray-500 mt-2">
       <mat-icon inline>info</mat-icon>
       <strong>Feedback:</strong> {{ lastFeedback }}
       <span *ngIf="lastScore !== null">
@@ -223,3 +201,40 @@
   </mat-card>
 </div>
 <!-- /grid -->
+<!-- 3‑b. Resultados (solo cuando existan) -->
+
+  <ng-container *ngIf="generatedCvText || generatedLetter">
+    <div class="result-block">
+      <!-- CV adaptado -->
+      <mat-card
+        #cvResult
+        appearance="outlined"
+        class="result-card"
+        *ngIf="generatedCvText"
+      >
+        <h3 class="card-title">
+          <mat-icon>article</mat-icon>
+          CV adaptado
+        </h3>
+        <textarea readonly rows="12" class="w-full border rounded p-2">{{
+          generatedCvText
+        }}</textarea>
+      </mat-card>
+
+      <!-- Carta generada -->
+      <mat-card
+        #letterResult
+        appearance="outlined"
+        class="result-card"
+        *ngIf="generatedLetter"
+      >
+        <h3 class="card-title">
+          <mat-icon>article</mat-icon>
+          Carta generada
+        </h3>
+        <textarea readonly rows="10" class="w-full border rounded p-2">{{
+          generatedLetter
+        }}</textarea>
+      </mat-card>
+    </div>
+  </ng-container>
