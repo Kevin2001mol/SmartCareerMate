@@ -594,3 +594,8 @@
     width: 100%;
   }
 }
+@media (max-width: 1023px) {
+  .actions {
+    margin-bottom: 2rem !important;
+  }
+}
