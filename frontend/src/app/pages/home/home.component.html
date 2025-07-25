@@ -100,7 +100,7 @@
         >
           <mat-icon>drafts</mat-icon>
           <span *ngIf="!generatingLetter">Generar carta</span>
-          <span *ngIf="generatingLetter">Generando…</span>
+          <span *ngIf="generatingLetter">Generando carta…</span>
         </button>
       </div>
     </mat-card>
@@ -171,7 +171,7 @@
       >
         <mat-icon>play_arrow</mat-icon>
         <ng-container *ngIf="!interviewLoading">Iniciar</ng-container>
-        <ng-container *ngIf="interviewLoading">Preparando…</ng-container>
+        <ng-container *ngIf="interviewLoading">⏳ Un momento, el reclutador está de camino, vaya tomando asiento…</ng-container>
       </button>
 
       <!-- botón terminar -->

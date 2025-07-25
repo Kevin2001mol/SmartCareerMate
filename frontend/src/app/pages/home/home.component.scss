@@ -75,9 +75,10 @@
 
 /* NUEVO LAYOUT: CONTENEDOR FLEX HORIZONTAL */
 .upload-card-content {
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: 60% 40%;   /* mismos anchos que ya usabas */
   gap: 1.5rem !important;
-  align-items: flex-start !important;
+  height: 100%;                     /* hace que ambas columnas se estiren igual */
   margin-bottom: 1rem !important;
 }
 
@@ -96,6 +97,13 @@
   flex-direction: column !important;
   gap: 0.75rem !important;
   padding-top: 1rem !important;
+  justify-content: space-between;   /* NUEVO → los 2 selects se colocan uno arriba y otro abajo */
+
+}
+
+.upload-section,
+.selectors-section{
+  height: 100% !important;
 }
 
 /* FIX PRINCIPAL: SELECTORES MÁS PEQUEÑOS Y CONTENIDOS */
@@ -145,7 +153,7 @@
 
 /* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD - VERSIÓN COMPACTA */
 .selectors-section mat-form-field {
-  width: 100% !important;
+  flex: 1 1 50% !important;   /* crece y se reparte 50 %/50 % */
   margin-bottom: 0 !important;
 }
 
