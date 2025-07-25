@@ -69,6 +69,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: 2rem !important;
+  overflow: visible !important;
 }
 
 /* FIX PRINCIPAL: SELECTORES MÁS PEQUEÑOS Y CONTENIDOS */
@@ -119,10 +121,48 @@
 /* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD */
 .upload-card .grid {
   margin-top: 1rem !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
 
 .upload-card mat-form-field {
   max-width: 100% !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* CONTENEDOR ESPECÍFICO PARA LOS SELECTORES DE IDIOMA Y TONO */
+.upload-card .grid.sm\:grid-cols-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 1rem !important;
+  padding: 0 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* AJUSTE ESPECÍFICO PARA LOS MAT-FORM-FIELD EN UPLOAD CARD */
+.upload-card ::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 0.25rem !important;
+  margin-bottom: 0 !important;
+}
+
+.upload-card ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  padding: 0.4rem 0.6rem 0.2rem !important;
+  min-height: 36px !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.upload-card ::ng-deep .mat-select-trigger {
+  height: 28px !important;
+  min-height: 28px !important;
+}
+
+.upload-card ::ng-deep .mat-form-field-label {
+  font-size: 0.85rem !important;
+}
+
+.upload-card ::ng-deep .mat-select-value {
+  font-size: 0.85rem !important;
 }
 
 /* FIX PARA CONTROLES DE CHAT - MANTENERLOS EN LÍNEA */
@@ -238,9 +278,9 @@
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  flex: 1 !important;
-  min-height: 120px !important;
-  margin-bottom: 1.5rem !important;
+  flex: 0 0 auto !important;
+  min-height: 100px !important;
+  margin-bottom: 1rem !important;
 }
 
 .upload-dropzone:hover {
@@ -425,6 +465,20 @@
   padding: 2rem;
   margin: -1rem;
   overflow: hidden;
+}
+
+/* FIX PARA PREVENIR QUE LOS SELECTORES SE CORTEN */
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-wrapper {
+  overflow: visible !important;
+}
+
+::ng-deep .mat-form-field {
+  overflow: visible !important;
+}
+
+/* ASEGURAR QUE LOS DROPDOWNS NO SE CORTEN */
+::ng-deep .cdk-overlay-container {
+  z-index: 1050 !important;
 }
 
 /* FIX ADICIONAL PARA TÍTULOS DE CARDS */
