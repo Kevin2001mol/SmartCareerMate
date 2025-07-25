@@ -1,95 +1,103 @@
-# SmartCareerMate (Finalizando desarrollo)
----
-**SmartCareerMate** es un asistente inteligente diseñado para facilitar procesos de selección y gestión del talento en el ámbito de los recursos humanos. Actualmente en desarrollo, este proyecto combina tecnologías modernas de desarrollo web con inteligencia artificial para ofrecer funcionalidades clave como:
-- 🔍 **Análisis inteligente de CVs**: extracción de información relevante y evaluación automatizada del perfil del candidato.
-- 📝 **Generación automática de documentos**: creación de CVs optimizados y cartas de presentación personalizadas.
-- 💬 **Simulación de entrevistas**: chatbot entrenado para realizar entrevistas tipo con preguntas adaptadas al rol.
-- 🌐 **Soporte multilenguaje y acceso web**: experiencia de usuario responsive y accesible desde navegador.
+# 🧠 SmartCareerMate
 
-El objetivo de **SmartCareerMate** es convertirse en una solución integral que ayude tanto a candidatos como a reclutadores a optimizar el tiempo, mejorar la calidad de los procesos y reducir sesgos humanos, fomentando decisiones basadas en datos.
+**SmartCareerMate** es una plataforma web inteligente diseñada para ayudar a candidatos en procesos de selección laboral, automatizando tareas clave mediante el uso de inteligencia artificial y una arquitectura basada en microservicios.
 
----
-# 📐 Propuesta de arquitectura y stack tecnológico
+La herramienta está pensada para optimizar y personalizar la presentación del perfil profesional de cada usuario, a través de funcionalidades como:
 
-| Capa | Tecnología | Responsabilidad principal | Observaciones |
-|------|------------|---------------------------|---------------|
-| **Front-end SPA** | **Angular 17 + Angular Material**<br/>NgRx (estado) · ngx-translate (i18n) | UX completa en castellano: subida de CV, formularios oferta, selector idioma/tono, slider de dificultad y chat en vivo | Angular trae CLI, lazy-loading y A11y; Material acelera prototipado |
-| **API Gateway** | Spring Boot 3 (Spring Cloud Gateway) | Enrutado, CORS, rate-limit, token introspection | Única puerta de entrada; escalable en Kubernetes |
-| **Servicio Auth** | Keycloak 23 · JWT (Bearer) | Registro OAuth2 / SSO, roles (candidato, admin) | Contenedor; gestiona políticas RGPD/consentimiento |
-| **Core Backend** | Spring Boot 3 (Maven) | Orquestar módulos de IA y persistencia | Arquitectura hexagonal para aislar dominio |
-| **Módulo IA** | Spring Boot + OpenAI Java SDK<br/>(o microservicio Python para NLP) | - Evaluación CV vs oferta<br/>- Reescritura multilingüe<br/>- Carta de presentación<br/>- Generador de preguntas/ respuestas | Prompts en plantillas; slider → ajusta *temperature* y contexto |
-| **Parser de CVs** | Apache Tika + PDFBox + POI | Extraer texto y metadatos de PDF/DOCX/ODT | Convierte a JSON: `{ experiencia:[], formacion:[], skills:[] }` |
-| **BD relacional** | PostgreSQL 16 | Usuarios, ofertas, histórico de chats, CVs reescritos | Spring Data JPA; tablas separadas para datos GDPR |
-| **File Storage** | MinIO (S3-compatible) o AWS S3 | Almacén de ficheros originales | URLs presignadas desde el front |
-| **Mensajería** | RabbitMQ | Jobs largos (parser, IA) | Retries + escalado horizontal |
-| **Tiempo real** | Spring WebSocket / SSE | Streaming de tokens del chat (entrevista) | Angular con RxJS |
-| **DevOps** | Docker Compose (dev) → Kubernetes + Helm (prod) | CI/CD (GitHub Actions) · Observabilidad (Grafana + Prometheus) | Helm charts por microservicio; HPA |
-| **Seguridad/legal** | CSP, OWASP 10, logging anonimizado, cifrado en reposo | RGPD: derecho al olvido → job de borrado | Postgres RLS si se comparten bases |
+- ✍️ Generación automática de cartas de presentación adaptadas a una oferta
+- 📄 Adaptación de CVs a descripciones de puestos concretos
+- 🤖 Simulación de entrevistas mediante un chatbot con IA
+- 📊 Análisis semántico de textos (CV + oferta)
 
 ---
 
-## 🔄 Flujos clave
+## 🚀 Funcionalidades principales
 
-1. **Carga y análisis de CV**  
-   1. Angular sube archivo al *File Service* (URL presignada).  
-   2. Devuelve `fileId` y lanza job *ParseCV* en RabbitMQ.  
-   3. *Parser Service* extrae texto → guarda JSON → notifica vía WebSocket (`cvParsed`).
+### 📝 Adaptación de CVs
+- El usuario sube su CV y la descripción de la oferta.
+- El sistema analiza ambas y genera una nueva versión del CV adaptada a los requisitos del puesto.
 
-2. **Comparación con la oferta**  
-   - Front llama `GET /api/fit-score` (CV ID + oferta).  
-   - *IA Service* envía prompt a GPT-4o:<br/>
-     ```
-     1. Perfil (JSON)
-     2. Descripción del puesto
-     3. Devuelve: score 0-100, fortalezas[], gaps[]
-     ```  
-   - Guarda evaluación y la envía al front.
+### 💬 Generación de carta de presentación
+- Se genera automáticamente una carta ajustada al perfil del candidato y la oferta.
+- Permite edición y copia directa.
 
-3. **Reescritura y carta de presentación**  
-   - Endpoint `/api/rewrite` (idioma, tono).  
-   - Prompts con guidelines de claridad + lenguaje destino.  
-   - Respuesta se guarda; opción *Descargar DOCX/PDF* (docx4j / OpenPDF).
-
-4. **Simulación de entrevista (chat)**  
-   - Angular abre socket `/ws/interview?level=<1-5>`.  
-   - Backend genera primera pregunta según *level*.  
-   - Cada mensaje del usuario se reenvía a GPT con prompt de reclutador; tokens en streaming.  
-   - Después de cada respuesta, IA envía **“Modelo de buena respuesta”** (colapsado en UI).
+### 🤖 Simulador de entrevista
+- Chatbot basado en IA (modelos LLM) que plantea preguntas y evalúa las respuestas.
+- Permite practicar con feedback básico.
 
 ---
 
-## 🛠️ Desarrollo incremental (sprints sugeridos)
+## 🧩 Estructura de microservicios
 
-| Sprint | Entregable | Puntos críticos |
-|--------|-----------|-----------------|
-| 1 | PoC subida de CV + parsing + JSON | Validación archivos > 2 MB |
-| 2 | Endpoint *fit-score* con OpenAI | Costes y latencia (caching embeddings) |
-| 3 | Reescritura multilenguaje + plantillas | Longitud tokens, logs PII |
-| 4 | Carta presentación + PDF | Plantillas Freemarker / docx4j |
-| 5 | Chat entrevista (nivel 1-3) | Streaming, UX fluido |
-| 6 | Seguridad (Auth, RGPD), slider 4-5 | Datos sensibles, auditoría |
-| 7 | Docker/K8s + monitorización | Consumo tokens y métricas negocio |
-
----
-
-## ✔️ Buenas prácticas
-
-* **Embeddings locales**: guarda vectores (e5-small) → reduce llamadas GPT.  
-* **Cost-guard**: límite diario/usuario de tokens; métricas en Prometheus.  
-* **Caching**: memoization de prompts inmutables.  
-* **Testing**: Testcontainers + WireMock (simular OpenAI).  
-* **Accesibilidad**: Angular Material cumple WCAG; revisa contraste tras i18n.  
-* **Escalabilidad económica**: Módulo IA como microservicio independiente; escala sólo donde hace falta.
+| Carpeta              | Descripción                                                                 |
+|----------------------|------------------------------------------------------------------------------|
+| `frontend/`          | Interfaz de usuario desarrollada con Angular                                |
+| `core-service/`      | Servicio central: lógica de negocio, validación, orquestación parcial       |
+| `cv-parser/`         | Microservicio para extracción y análisis de texto desde archivos de CV       |
+| `ai-service/`        | Microservicio de IA: generación de carta, simulación de entrevista, etc.    |
+| `gateway/`           | API Gateway entre los microservicios y el frontend                          |
+| `.vscode/`           | Configuración personalizada para entorno de desarrollo                      |
 
 ---
 
-## 🚀 Próximos pasos
+## 🧪 Archivos clave
 
-1. Validar alcance con stakeholders y mockups en Figma.  
-2. Generar backlog a partir de los sprints.  
-3. Configurar mono-repo (Nx para Angular + Maven multi-module).  
-4. Evaluar microservicio Python (FastAPI) si en futuro se usan modelos open-source (Llama-3, Mistral).
+| Archivo                     | Función                                                                 |
+|-----------------------------|-------------------------------------------------------------------------|
+| `docker-compose.yml`        | Orquesta todos los servicios en contenedores                           |
+| `ai-ollama.Dockerfile`      | Dockerfile específico para entorno de IA local con modelos Ollama       |
+| `cv1.json` / `payload.json` | Archivos de ejemplo para pruebas de CV y flujo de procesamiento         |
 
 ---
 
-> Con este enfoque tendrás un MVP en **6-8 semanas** y una base sólida para evolucionar la plataforma.
+## 🛠️ Tecnologías utilizadas
+
+**Frontend**
+- Angular · TypeScript · HTML/CSS
+
+**Backend / Microservicios**
+- Java + Spring Boot (`core-service`)
+- Node.js + Express (`ai-service`, `cv-parser`)
+- RabbitMQ (mensajería entre servicios)
+
+**IA / NLP**
+- OpenAI API y modelos Ollama
+- NLP clásico para análisis de texto
+
+**Infraestructura**
+- Docker + Docker Compose
+- PostgreSQL
+- GitHub Actions
+
+---
+## ⚠️ Estado actual del proyecto
+
+✅ Funcional  
+⚙️ Se utiliza un endpoint gratuito para IA, por lo que los tiempos de respuesta pueden ser lentos y las respuestas limitadas.
+
+🎨 El diseño actual es funcional pero se encuentra en revisión. El objetivo es mejorar la experiencia visual y de usuario (UI/UX) en futuras versiones.
+
+---
+
+## 🧠 Motivación
+
+Este proyecto nació como una forma de aplicar mis conocimientos full-stack y de IA para resolver un problema real: ayudar a personas a presentar su perfil de forma más efectiva.  
+Mi objetivo es seguir mejorando la herramienta, tanto a nivel técnico como funcional.
+
+---
+
+## 📬 Contacto
+
+Creado por **Kevin Molina**  
+🔗 [Portfolio](https://kevinhub.dev)  
+📧 kevin2001molina@gmail.com  
+📱 +34 695 918 954
+
+---
+
+## 📝 Licencia
+
+Este proyecto está bajo licencia MIT. Libre para usar, aprender o mejorar.
+
+
+
