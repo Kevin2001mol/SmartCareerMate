@@ -573,4 +573,10 @@
   .interview-card {
     height: calc(100vh - 8rem);
   }
+  .offer-card mat-card-content {
+    padding: 0 2rem 2rem 2rem !important;
+  }
+  .upload-card .selectors-section {
+    padding-right: 2rem !important;
+  }
 }
