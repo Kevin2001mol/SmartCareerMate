@@ -64,13 +64,11 @@
 }
 
 .upload-card {
-  @apply bg-white rounded-2xl shadow-xl;
-  flex: 1.2;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: 2rem !important;
   overflow: visible !important;
+  height: auto !important;  /* NUEVO */
 }
 
 /* NUEVO LAYOUT: CONTENEDOR FLEX HORIZONTAL */
@@ -97,10 +95,9 @@
   flex-direction: column !important;
   gap: 0.75rem !important;
   padding-top: 1rem !important;
-  justify-content: space-between;   /* NUEVO → los 2 selects se colocan uno arriba y otro abajo */
-
+  justify-content: space-between;
+  align-self: stretch; /* NUEVO: se estira al mismo alto que el dropzone */
 }
-
 .upload-section,
 .selectors-section{
   height: 100% !important;
@@ -153,8 +150,7 @@
 
 /* FIX ESPECÍFICO PARA SELECTORES EN UPLOAD CARD - VERSIÓN COMPACTA */
 .selectors-section mat-form-field {
-  flex: 1 1 50% !important;   /* crece y se reparte 50 %/50 % */
-  margin-bottom: 0 !important;
+  flex: 1 1 auto !important;   /* crece y se reparte 50 %/50 % */
 }
 
 /* SELECTORES ULTRA COMPACTOS PARA LA SECCIÓN DERECHA */
@@ -541,36 +537,4 @@
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--text-primary);
-}
-
-
-/* --- PATCH PARA IGUALAR ALTURAS EN LA TARJETA "Cargar CV" --- */
-
-/* 1) Convierte el mat-card-content de la upload-card en grid */
-::ng-deep .upload-card mat-card-content {
-  display: grid !important;
-  grid-template-columns: 60% 40% !important; /* ajusta a tu gusto */
-  gap: 1.5rem !important;
-  align-items: stretch !important;
-  height: 100% !important;
-}
-
-/* 2) Asegura que ambas columnas se estiran */
-::ng-deep .upload-card mat-card-content .upload-section,
-::ng-deep .upload-card mat-card-content .selectors-section {
-  height: 100% !important;
-}
-
-/* 3) Reparte verticalmente los dos selects para que no “caigan” */
-::ng-deep .upload-card mat-card-content .selectors-section {
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-}
-
-/* 4) Cada mat-form-field ocupa la mitad de la altura disponible */
-::ng-deep .upload-card mat-card-content .selectors-section mat-form-field {
-  flex: 1 1 50% !important;
-  margin-bottom: 0 !important;
-  box-sizing: border-box !important;
 }
