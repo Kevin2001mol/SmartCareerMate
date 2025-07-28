@@ -8,7 +8,7 @@ import {
   ChangeDetectorRef,
   QueryList,
   AfterViewChecked,
-  ViewChildren
+  ViewChildren,
 } from '@angular/core';
 
 import {
@@ -41,6 +41,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface ChatMsg {
   from: 'user' | 'bot';
@@ -63,11 +65,14 @@ interface ChatMsg {
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatSnackBarModule,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy {
+export class HomeComponent
+  implements AfterViewInit, AfterViewChecked, OnDestroy
+{
   private destroy$ = new Subject<void>();
   @ViewChild('cvResult') cvResult?: ElementRef<HTMLElement>;
   @ViewChild('letterResult') letterResult?: ElementRef<HTMLElement>;
@@ -110,7 +115,8 @@ export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy
     private interview: InterviewService,
     private scroll: ScrollService,
     private vps: ViewportScroller,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar
   ) {}
 
   ngAfterViewInit() {
@@ -135,13 +141,26 @@ export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy
     if (!file) {
       return;
     }
+    const maxSizeMB = 1;
+    if (file.size >= maxSizeMB * 1024 * 1024) {
+      console.warn('Archivo demasiado grande:', file.size);
+      this.uploadStatus = `❌ El archivo supera el tamaño máximo de ${maxSizeMB}MB`;
+
+      this.snackBar.open(`El archivo supera los ${maxSizeMB}MB`, 'Cerrar', {
+        duration: 5000, // 5 segundos
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snackbar-warning'],
+      });
+
+      return;
+    }
 
     this.cvName = file.name;
     this.isLoading = true;
     this.uploadStatus = 'Subiendo archivo...';
 
     try {
-      // Pasar userId (hardcodeado por ahora)
       const text = await firstValueFrom(this.cvService.upload(file, 1));
       this.parsedCv = text;
       this.uploadStatus = '✅ CV parseado exitosamente';
@@ -154,9 +173,49 @@ export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy
   }
 
   async generateCv() {
-    if (!this.parsedCv || !this.offerText) return;
+    if (!this.parsedCv && !this.offerText) {
+      this.snackBar.open(
+        'Por favor, carga tu CV y escribe la descripción de la oferta antes de generar un CV adaptado.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (!this.parsedCv) {
+      this.snackBar.open(
+        'Debes subir y parsear un CV antes de generar uno adaptado.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (!this.offerText) {
+      this.snackBar.open(
+        'Debes introducir una descripción de la oferta para generar el CV adaptado.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
     this.generatingCv = true;
-    
 
     const payload: RewritePayload = {
       cvText: this.parsedCv,
@@ -179,7 +238,48 @@ export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy
 
   /** Generar carta de presentación */
   async generateLetter() {
-    if (!this.parsedCv || !this.offerText) return;
+    console.log(this.offerText);
+    if (!this.parsedCv && !this.offerText) {
+      this.snackBar.open(
+        'Por favor, carga tu CV y escribe la descripción de la oferta antes de generar una carta adaptada.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (!this.parsedCv) {
+      this.snackBar.open(
+        'Debes subir y parsear un CV antes de generar una carta adaptada.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (!this.offerText) {
+      this.snackBar.open(
+        'Debes introducir una descripción de la oferta para generar la carta adaptada.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
     this.generatingLetter = true;
 
     const payload: RewritePayload = {
@@ -205,6 +305,61 @@ export class HomeComponent implements AfterViewInit, AfterViewChecked, OnDestroy
   interviewLoading = false;
   interviewPendingIndex: number | null = null;
   async startInterview() {
+    if (!this.parsedCv?.trim() && !this.offerText?.trim()) {
+      this.snackBar.open(
+        'Debes cargar tu CV y escribir la oferta antes de iniciar la entrevista.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (!this.parsedCv?.trim()) {
+      this.snackBar.open(
+        'Debes cargar y parsear tu CV antes de iniciar la entrevista.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (!this.offerText?.trim()) {
+      this.snackBar.open(
+        'Debes introducir una descripción de la oferta antes de iniciar la entrevista.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
+
+    if (this.interviewActive) {
+      this.snackBar.open(
+        'Ya hay una entrevista activa. Debes finalizarla antes de comenzar otra.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-warning'],
+        }
+      );
+      return;
+    }
     // 🔥 Resetea estado
     this.chat = [];
     this.history = [];
